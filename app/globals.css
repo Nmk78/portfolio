@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+  }
+  
+  .animate-shake {
+    animation: shake 0.5s ease infinite;
+  }
+  
+  .space-y-4:hover ~ .blur {
+    filter: blur(10px);
+  }
+
+  /* Fancy Animation for the Mosquito Image */
+  @keyframes slideInAndBounce {
+    0% {
+      opacity: 0;
+      transform: translateY(50%) scale(0.9);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(-20%) scale(1.05);
+    }
+    80% {
+      transform: translateY(10%) scale(0.95);
+    }
+    100% {
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-slideInAndBounce {
+    animation: slideInAndBounce 1s ease-out forwards;
+  }
+
+  @keyframes slideOutFade {
+    0% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-20%); /* Slide up slightly */
+    }
+  }
+  
+  .animate-slideOutFade {
+    animation: slideOutFade 0.5s ease-out forwards; /* Adjust duration as needed */
+  }
+  
