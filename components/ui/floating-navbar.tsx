@@ -15,11 +15,13 @@ import Image from "next/image";
 import Logo from "../Logo";
 import {
   IconBurger,
+  IconFileCv,
   IconManualGearbox,
   IconMenu,
   IconMenu2,
   IconMenu3,
 } from "@tabler/icons-react";
+import { Download } from "lucide-react";
 
 export const FloatingNav = ({
   navItems,
@@ -45,8 +47,6 @@ export const FloatingNav = ({
     if (typeof current === "number") {
       const previous = scrollYProgress.getPrevious() ?? 0;
       const direction = current - previous;
-      console.log("🚀 ~  ~ scrollYProgress.get():", scrollYProgress.get());
-
       // Show nav if at the top or at the bottom
       if (scrollYProgress.get() === 0 || scrollYProgress.get() >= 1) {
         setVisible(true);
@@ -62,9 +62,6 @@ export const FloatingNav = ({
   useEffect(() => {
     const handleScroll = () => {
       const currentScroll = window.scrollY;
-      console.log("🚀 ~ handleScroll ~ currentScroll:", currentScroll);
-      console.log("🚀 ~ handleScroll ~ previousScroll:", previousScroll);
-
       if (currentScroll === 0) {
         setVisible(true);
       } else if (currentScroll < previousScroll) {
@@ -94,7 +91,6 @@ export const FloatingNav = ({
 
         <div className={cn("relative", className)}>
           {/* Burger Button */}
-          {/* Burger Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="sm:hidden flex items-center p-2 text-gray-600 dark:text-white hover:text-gray-900"
@@ -107,7 +103,7 @@ export const FloatingNav = ({
             // className={`flex-col space-y-2 absolute right-0 top-full bg-white dark:bg-black border border-gray-200 shadow-lg ${
             //   isMenuOpen ? "block" : "hidden"
             // } sm:hidden`}
-            className={`flex-col space-y-2 absolute right-0 top-full bg-white dark:bg-black border border-gray-200 shadow-lg transition-all duration-300 transform ${
+            className={`flex-col space-y-2 w-max absolute right-0 top-full bg-white dark:bg-black border border-gray-200 shadow-lg transition-all duration-300 transform ${
               isMenuOpen
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 -translate-y-4 pointer-events-none"
@@ -126,6 +122,17 @@ export const FloatingNav = ({
                 <span className="block text-sm">{navItem.name}</span>
               </Link>
             ))}
+            <Link
+              key="cv"
+              href="/cv"
+              className={cn(
+                "flex items-center md:hidden border-t border-gray-300 space-x-2 px-4 py-2 text-neutral-600 dark:text-neutral-50 hover:text-neutral-500 dark:hover:text-neutral-300"
+              )}
+              onClick={() => setIsMenuOpen(false)} // Close the menu on link click
+            >
+              <IconFileCv className="h-4 w-4 text-neutral-500 dark:text-white" />
+              <span className="block text-sm">Download my CV</span>
+            </Link>
           </div>
 
           {/* Desktop Menu */}
@@ -142,11 +149,22 @@ export const FloatingNav = ({
                 <span className="hidden sm:block text-sm">{navItem.name}</span>
               </Link>
             ))}
+
           </div>
-
+          
         </div>
-
-        <div className={`absolute md:static -skew-y-6 md:-skew-y-12 top-3 md:top-10 right-0  md:right-10 w-44 transition-all duration-300 ease-in-out ${isMenuOpen ? " right-28" : ""}`}>
+        <Link
+              key="cv"
+              href="/cv"
+              className={cn(
+                "hidden md:flex items-center border border-gray-300 space-x-2 px-4 py-2 text-neutral-600 dark:text-neutral-50 hover:text-neutral-500 dark:hover:text-neutral-300"
+              )}
+              onClick={() => setIsMenuOpen(false)} // Close the menu on link click
+            >
+              <IconFileCv className="h-4 w-4 text-neutral-500 dark:text-white" />
+              <span className="block text-sm">Download my CV</span>
+            </Link>
+        {/* <div className={`absolute md:static -skew-y-6 md:-skew-y-12 top-3 md:top-10 right-0  md:right-10 w-44 transition-all duration-300 ease-in-out ${isMenuOpen ? " right-28" : ""}`}>
           <button
             className="object-contain absolute top-10 md:-top-5 right-10 animate-shake hover:animate-none"
             onClick={() => {
@@ -165,7 +183,7 @@ export const FloatingNav = ({
               Download CV
             </span>
           </button>
-        </div>
+        </div> */}
       </motion.div>
     </AnimatePresence>
   );

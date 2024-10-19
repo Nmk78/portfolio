@@ -31,18 +31,21 @@ import { FloatingDock } from "./ui/floating-dock";
 export const products = [
   {
     title: "Library Managment System",
-    link: "#",
+    link: "lbms",
+    route: "lbms",
     thumbnail: "/images/lbms/adminPanel.png",
   },
   {
     title: "Enterprise Resource Managment Systems",
     link: "https://erp-nmk.vercel.app/",
+    route: "erp",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/cursor.png",
   },
   {
     title: "mooZ",
     link: "https://mooz-nmk.vercel.app/",
+    route: "mooz",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/rogue.png",
   },
@@ -50,18 +53,21 @@ export const products = [
   {
     title: "Online English Guide - Personal Blog",
     link: "https://wyt-blog.vercel.app/",
+    route: "wyt",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/editorially.png",
   },
   {
     title: "Editrix AI",
     link: "https://editrix.ai",
+    route: "lbms",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/editrix.png",
   },
   {
     title: "Pixel Perfect",
     link: "https://app.pixelperfect.quest",
+    route: "lbms",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/pixelperfect.png",
   },
@@ -69,24 +75,28 @@ export const products = [
   {
     title: "Algochurn",
     link: "https://algochurn.com",
+    route: "lbms",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/algochurn.png",
   },
   {
     title: "Aceternity UI",
     link: "https://ui.aceternity.com",
+    route: "lbms",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/aceternityui.png",
   },
   {
     title: "Tailwind Master Kit",
     link: "https://tailwindmasterkit.com",
+    route: "lbms",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/tailwindmasterkit.png",
   },
   {
     title: "SmartBridge",
     link: "https://smartbridgetech.com",
+    route: "lbms",
     thumbnail:
       "https://aceternity.com/images/products/thumbnails/new/smartbridge.png",
   },

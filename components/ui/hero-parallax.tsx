@@ -104,6 +104,7 @@ export const HeroParallax = ({
   products: {
     title: string;
     link: string;
+    route: string;
     thumbnail: string;
   }[];
 }) => {
@@ -164,13 +165,13 @@ export const HeroParallax = ({
     springConfig
   );
   const translateY = useSpring(
-    useTransform(scrollYProgress, [0, 0.2], [-700, 500]),
+    useTransform(scrollYProgress, [0, 0.2], [-700, 50]),
     springConfig
   );
   return (
     <div
       ref={ref}
-      className="h-[305vh] md:h-[265vh] py-20 mt-16 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
+      className="h-[255vh] md:h-[225vh] py-20 mt-16 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
     >
       <Header />
 
@@ -260,10 +261,10 @@ export const Header = () => {
     >
       <div className="flex flex-col justify-center space-y-5 mx-7 md:mx-14">
         <div className="relative space-y-4 z-10">
-          <h1 className="text-2xl md:text-7xl font-bold text-red-800 dark:text-white">
+          <h1 className="text-3xl md:text-7xl font-bold text-red-800 dark:text-white">
             Nay Myo Khant
           </h1>
-          <h1 className="text-xl md:text-4xl font-bold text-red-800 dark:text-white">
+          <h1 className="text-xl md:text-4xl md:font-bold text-red-800 dark:text-white">
             A Computerphile
           </h1>
         </div>
@@ -275,7 +276,7 @@ export const Header = () => {
       </div>
 
       {/* Conditional Image Display with Slide-Up Animation */}
-      {showImage && (
+      {/* {showImage && (
         <Image
           src="/images/swam_upscaled.png"
           height="250"
@@ -287,7 +288,7 @@ export const Header = () => {
           alt="Mosquito"
           title="Bzzzt! Just a friendly mosquito reminding you to download my CV! Don't let me fly away! 🦟"
         />
-      )}
+      )} */}
 
       <div className="absolute inset-0 transition-all duration-300 blur pointer-events-none" />
     </div>
@@ -301,6 +302,7 @@ export const ProductCard = ({
   product: {
     title: string;
     link: string;
+    route: string;
     thumbnail: string;
   };
   translate: MotionValue<number>;
@@ -336,7 +338,7 @@ export const ProductCard = ({
       className="group/product h-96 w-[30rem] relative flex-shrink-0"
     >
       <Link
-        href={product.link}
+        href={`project/${product.route}`}
         className="block group-hover/product:shadow-2xl"
       >
         <Image

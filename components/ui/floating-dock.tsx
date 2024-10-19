@@ -226,8 +226,8 @@ const FloatingDockDesktop = ({
         className
       )}
     >
-      {isVisible && items?.map((item) => (
-        <IconContainer mouseX={mouseX} key={item.title} {...item} />
+      {isVisible && items?.map((item, idx) => (
+        <IconContainer  mouseX={mouseX} key={item.title} {...item} />
       ))}
     </motion.div>
   );
