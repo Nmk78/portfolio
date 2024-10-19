@@ -1,7 +1,10 @@
 "use client";
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import React from "react";
-
+import Graph from "./Graph";
+import Image from "next/image";
+import Footer from "./Footer";
+import { FloatingDock } from "./ui/floating-dock";
 
 // // "use client";
 // // import React from "react";
@@ -25,15 +28,11 @@ import React from "react";
 // // }
 
 
-export default function Home() {
-  return <HeroParallax products={products} />;
-}
 export const products = [
   {
     title: "Library Managment System",
     link: "#",
-    thumbnail:
-      "/images/lbms/adminPanel.png",
+    thumbnail: "/images/lbms/adminPanel.png",
   },
   {
     title: "Enterprise Resource Managment Systems",
@@ -123,5 +122,15 @@ export const products = [
       "https://aceternity.com/images/products/thumbnails/new/efreeinvoice.png",
   },
 ];
-
+export default function Home() {
+  
+  return (
+    <>
+      <HeroParallax products={products} />
+      
+        <Graph />
+      <Footer />
+    </>
+  );
+}
 

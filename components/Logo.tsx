@@ -7,7 +7,7 @@ export default function Logo() {
   const [isHoveredK, setIsHoveredK] = useState(false);
 
   return (
-    <div className="flex items-center justify-center">
+    <a href="/" className="flex items-center justify-center">
       <div className="relative text-xl md:text-3xl z-30 space-x-0 md:space-x-2 overflow-hidden">
         {/* Letter N */}
         <div
@@ -60,6 +60,6 @@ export default function Logo() {
           ></div>
         </div>
       </div>
-    </div>
+    </a>
   );
 }

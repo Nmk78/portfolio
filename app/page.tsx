@@ -6,9 +6,6 @@ const page = () => {
   return (
     <>
       <Home />
-      <div className="bg-gray-200">
-        <Graph />
-      </div>
     </>
   );
 };
