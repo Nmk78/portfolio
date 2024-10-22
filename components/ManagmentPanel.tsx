@@ -39,95 +39,9 @@ import {
 import Image from "next/image";
 
 export default function ManagmentPanel() {
-  //All Logics are here
-  //   const [personalInfo, setPersonalInfo] = useState({
-  //     name: "John Doe",
-  //     bio: "Full-stack developer",
-  //     description: "Passionate about creating user-friendly web applications.",
-  //   });
-  //   const [projects, setProjects] = useState([
-  //     {
-  //       name: "Portfolio Website",
-  //       description: "Personal portfolio showcasing my work",
-  //       link: "https://johndoe.com",
-  //     },
-  //     {
-  //       name: "Task Manager",
-  //       description: "A React-based task management application",
-  //       link: "https://taskmanager.com",
-  //     },
-  //     {
-  //       name: "E-commerce Platform",
-  //       description: "Full-stack e-commerce solution",
-  //       link: "https://myshop.com",
-  //     },
-  //     {
-  //       name: "Weather App",
-  //       description: "Real-time weather forecasting app",
-  //       link: "https://weatherapp.com",
-  //     },
-  //   ]);
-  //   const [skills, setSkills] = useState([
-  //     "React",
-  //     "Node.js",
-  //     "TypeScript",
-  //     "Python",
-  //   ]);
-  //   const [cv, setCv] = useState("https://naymyokhant.me/cv.pdf");
-  //   const [activeSection, setActiveSection] = useState("");
-
-  //   const handlePersonalInfoChange = (
-  //     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  //   ) => {
-  //     setPersonalInfo({ ...personalInfo, [e.target.name]: e.target.value });
-  //   };
-
-  //   const handleProjectChange = (
-  //     index: number,
-  //     updatedProject: { name: string; description: string; link: string }
-  //   ) => {
-  //     const newProjects = [...projects];
-  //     newProjects[index] = updatedProject;
-  //     setProjects(newProjects);
-  //   };
-
-  //   const addProject = (newProject: {
-  //     name: string;
-  //     description: string;
-  //     link: string;
-  //   }) => {
-  //     setProjects([...projects, newProject]);
-  //   };
-
-  //   const removeProject = (index: number) => {
-  //     setProjects(projects.filter((_, i) => i !== index));
-  //   };
-
-  //   const addSkill = (newSkill: string) => {
-  //     setSkills([...skills, newSkill]);
-  //   };
-
-  //   const updateSkill = (index: number, updatedSkill: string) => {
-  //     const newSkills = [...skills];
-  //     newSkills[index] = updatedSkill;
-  //     setSkills(newSkills);
-  //   };
-
-  //   const removeSkill = (index: number) => {
-  //     setSkills(skills.filter((_, i) => i !== index));
-  //   };
-
-  //   const handleSubmit = (e: React.FormEvent) => {
-  //     e.preventDefault();
-  //     console.log({ personalInfo, projects, skills, cv });
-  //     // Here you would typically send this data to your backend API
-  //   };
-
-  //All Logics are here
-
-  //Chat GPT Logic
 
   const [personalInfo, setPersonalInfo] = useState({
+    github: "nmk78",
     name: "John Doe",
     bio: "Full-stack developer",
     description: "Passionate about creating user-friendly web applications.",

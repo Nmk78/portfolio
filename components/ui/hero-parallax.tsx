@@ -260,7 +260,7 @@ export const Header = () => {
       className="max-w-7xl mx-auto mt-60 relative py-16 md:py-40 w-full left-0 top-0 transition-all duration-300"
     >
       <div className="flex flex-col justify-center space-y-5 mx-7 md:mx-14">
-        <div className="relative space-y-4 z-10">
+        <div id="top" className="relative space-y-4 z-10">
           <h1 className="text-3xl md:text-7xl font-bold text-red-800 dark:text-white">
             Nay Myo Khant
           </h1>

@@ -1,7 +1,13 @@
 "use client";
 import React from "react";
-import { IconHome, IconMessage, IconUser, IconSettings2, IconCode } from "@tabler/icons-react";
-import { FloatingNav } from "./ui/floating-navbar";
+import {
+  IconHome,
+  IconMessage,
+  IconUser,
+  IconSettings2,
+  IconCode,
+} from "@tabler/icons-react";
+import FloatingNav from "./ui/floating-navbar";
 export function Nav() {
   const navItems = [
     {
@@ -11,7 +17,7 @@ export function Nav() {
     },
     {
       name: "Projects",
-      link: "/Projects",
+      link: "/project",
       icon: <IconCode className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
     {
@@ -21,14 +27,9 @@ export function Nav() {
         <IconMessage className="h-4 w-4 text-neutral-500 dark:text-white" />
       ),
     },
-    {
-      name: "Managment",
-      link: "/managment",
-      icon: (
-        <IconSettings2 className="h-4 w-4 text-neutral-500 dark:text-white" />
-      ),
-    },
   ];
+
+
 
   return (
     <nav className="relative flex w-full z-50">
