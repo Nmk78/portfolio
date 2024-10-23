@@ -290,14 +290,14 @@ export const Header = () => {
           {info ? (
             info.name
           ) : (
-            <div className="w-4/5 md:w-1/3 h-10 bg-gray-300 animate-pulse rounded-lg"></div>
+            <div className="w-4/5 md:w-1/3 h-16 bg-gray-300 animate-pulse rounded-full"></div>
           )}
         </h1>
         <h2 className="text-xl md:text-4xl md:font-bold text-red-800 dark:text-white">
           {info ? (
             info.bio
           ) : (
-            <div className="w-2/3 md:w-1/2 h-6 bg-gray-300 animate-pulse rounded-full"></div>
+            <div className="w-2/3 md:w-1/2 h-10 bg-gray-300 animate-pulse rounded-full"></div>
           )}
         </h2>
         <div className="max-w-2xl text-base font-semibold md:text-xl mt-8 dark:text-gray-700">

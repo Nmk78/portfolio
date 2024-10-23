@@ -1,7 +1,7 @@
 //@ts-nocheck
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Trash2,
   Plus,
@@ -39,25 +39,86 @@ import {
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import Loading from "./Loading";
+import { Project, Skill, PersonalInfo, useData } from "@/context/DataContext";
+import { fetchData } from "@/lib/fetcher";
 
 export default function ManagmentPanel() {
-  const [personalInfo, setPersonalInfo] = useState({});
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
   const { user } = useUser();
 
-  const [projects, setProjects] = useState([]);
-  const [personalInfoChanged, setPersonalInfoChanged] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [personalInfoChanged, setPersonalInfoChanged] =
+    useState<boolean>(false);
 
-  const [skills, setSkills] = useState([]);
-  const [cv, setCv] = useState("");
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [cv, setCv] = useState<string>("");
 
   // New states for tracking changes
-  const [projectsToAdd, setProjectsToAdd] = useState<any>([]);
-  const [projectsToUpdate, setProjectsToUpdate] = useState<any>([]);
-  const [projectsToDelete, setProjectsToDelete] = useState<any>([]);
+  const [projectsToAdd, setProjectsToAdd] = useState<Project[]>([]);
+  const [projectsToUpdate, setProjectsToUpdate] = useState<Project[]>([]);
+  const [projectsToDelete, setProjectsToDelete] = useState<string[]>([]);
 
-  const [skillsToAdd, setSkillsToAdd] = useState([]);
-  const [skillsToUpdate, setSkillsToUpdate] = useState([]);
-  const [skillsToDelete, setSkillsToDelete] = useState([]);
+  const [skillsToAdd, setSkillsToAdd] = useState<Skill[]>([]);
+  const [skillsToUpdate, setSkillsToUpdate] = useState<Skill[]>([]);
+  const [skillsToDelete, setSkillsToDelete] = useState<string[]>([]); // assuming id is a string
+
+  useEffect(() => {
+    const fetchDataIfNeeded = async () => {
+      if (!personalInfo) {
+        const { data } = await fetchData(
+          "http://localhost:3000/api/info",
+          setPersonalInfo
+        );
+      }
+    };
+
+    fetchDataIfNeeded();
+  }, [personalInfo]); // Re-run when info changes
+
+
+  useEffect(() => {
+    console.log("🚩Running Skills Fetch");
+    
+    const fetchDataIfNeeded = async () => {
+      // Check if skills is an empty array
+      if (skills?.length === 0) {
+        const { data } = await fetchData(
+          "http://localhost:3000/api/skills",
+          setSkills
+        );
+        console.log("🚀 ~ Skills fetched:", data);
+      } else {
+        console.log("🚀 ~ Skills already fetched:", skills);
+      }
+    };
+  
+    fetchDataIfNeeded();
+  }, [skills]); // Run only once on mount
+  
+  
+  useEffect(() => {
+    console.log("🚩Running Projects Fetch");
+    
+    const fetchDataIfNeeded = async () => {
+      // Check if projects is an empty array
+      if (projects?.length === 0) {
+        const { data } = await fetchData(
+          "http://localhost:3000/api/projects",
+          setProjects
+        );
+        console.log("🚀 ~ Projects fetched:", data);
+      } else {
+        console.log("🚀 ~ Projects already fetched:", projects);
+      }
+    };
+  
+    fetchDataIfNeeded();
+  }, [projects]); // Run only once on mount
+  
+
+  console.log("🚀 ~ personalInfo ~ info:", personalInfo);
+  console.log("🚀 ~ skills ~ info:", skills);
+  console.log("🚀 ~ projects ~ info:", projects);
 
   // Handle personal info change
   const handlePersonalInfoChange = (
@@ -183,7 +244,6 @@ export default function ManagmentPanel() {
           body: JSON.stringify(personalInfo),
           headers: { "Content-Type": "application/json" },
         });
-          console.log("🚀 ~ handleSubmit ~ personalInfo:", personalInfo)
       }
 
       // Process projects: Add, Update, Delete
@@ -286,7 +346,7 @@ export default function ManagmentPanel() {
               )}{" "}
             </div>
 
-            <div className="md:w-2/3 flex-grow space-y-2 mt-4 md:mt-0">
+            <div className="w-full md:w-2/3 flex-grow space-y-2 mt-4 md:mt-0">
               <div className="space-y-2">
                 <Dialog>
                   <div className="space-y-2 sm:space-y-0 sm:flex sm:space-x-4">
@@ -319,7 +379,7 @@ export default function ManagmentPanel() {
                       variant="outline"
                       className="w-full justify-between"
                     >
-                      {personalInfo.name}
+                      {personalInfo?.name}
                       <Pencil className="h-4 w-4 opacity-50" />
                     </Button>
                   </DialogTrigger>
@@ -330,7 +390,7 @@ export default function ManagmentPanel() {
                     <Input
                       id="name"
                       name="name"
-                      value={personalInfo.name}
+                      value={personalInfo?.name}
                       onChange={handlePersonalInfoChange}
                       className="mt-2"
                     />
@@ -345,7 +405,7 @@ export default function ManagmentPanel() {
                       variant="outline"
                       className="w-full justify-between"
                     >
-                      {personalInfo.bio}
+                      {personalInfo?.bio}
                       <Pencil className="h-4 w-4 opacity-50" />
                     </Button>
                   </DialogTrigger>
@@ -356,7 +416,7 @@ export default function ManagmentPanel() {
                     <Input
                       id="bio"
                       name="bio"
-                      value={personalInfo.bio}
+                      value={personalInfo?.bio}
                       onChange={handlePersonalInfoChange}
                       className="mt-2"
                     />
@@ -371,7 +431,7 @@ export default function ManagmentPanel() {
                       variant="outline"
                       className="w-full justify-between h-auto whitespace-normal"
                     >
-                      {personalInfo.description}
+                      {personalInfo?.description}
                       <Pencil className="h-4 w-4 opacity-50 ml-2 flex-shrink-0" />
                     </Button>
                   </DialogTrigger>
@@ -382,7 +442,7 @@ export default function ManagmentPanel() {
                     <Textarea
                       id="description"
                       name="description"
-                      value={personalInfo.description}
+                      value={personalInfo?.description}
                       onChange={handlePersonalInfoChange}
                       className="mt-2"
                     />
@@ -402,49 +462,53 @@ export default function ManagmentPanel() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2 mb-4">
-              {skills.map((skill, index) => (
-                <Dialog key={index}>
-                  <DialogTrigger asChild>
-                    <Badge
-                      variant="secondary"
-                      className="text-red-600 bg-red-100 cursor-pointer"
-                    >
-                      {skill}
-                    </Badge>
-                  </DialogTrigger>
-                  <DialogContent className="bg-gray-100">
-                    <DialogHeader>
-                      <DialogTitle>Edit Skill</DialogTitle>
-                    </DialogHeader>
-                    <Input
-                      defaultValue={skill}
-                      onChange={(e) => updateSkill(index, e.target.value)}
-                    />
-                    <div className="flex justify-between mt-4">
-                      <Button
-                        variant="destructive"
-                        onClick={() => removeSkill(index)}
+              {Array.isArray(skills) && skills.length > 0 ? (
+                skills.map((skill, index) => (
+                  <Dialog key={index}>
+                    <DialogTrigger asChild>
+                      <Badge
+                        variant="secondary"
+                        className="text-red-600 bg-red-100 cursor-pointer"
                       >
-                        Remove
-                      </Button>
-                      <Button
-                        onClick={() =>
-                          updateSkill(
-                            index,
-                            (
-                              document.querySelector(
-                                "input"
-                              ) as HTMLInputElement
-                            ).value
-                          )
-                        }
-                      >
-                        Save
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              ))}
+                        {skill.name}
+                      </Badge>
+                    </DialogTrigger>
+                    <DialogContent className="bg-gray-100">
+                      <DialogHeader>
+                        <DialogTitle>Edit Skill</DialogTitle>
+                      </DialogHeader>
+                      <Input
+                        defaultValue={skill}
+                        onChange={(e) => updateSkill(index, e.target.value)}
+                      />
+                      <div className="flex justify-between mt-4">
+                        <Button
+                          variant="destructive"
+                          onClick={() => removeSkill(index)}
+                        >
+                          Remove
+                        </Button>
+                        <Button
+                          onClick={() =>
+                            updateSkill(
+                              index,
+                              (
+                                document.querySelector(
+                                  "input"
+                                ) as HTMLInputElement
+                              ).value
+                            )
+                          }
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                ))
+              ) : (
+                <p>No skills available.</p>
+              )}
             </div>
             <Dialog>
               <DialogTrigger asChild>
@@ -587,92 +651,101 @@ export default function ManagmentPanel() {
                   </Button>
                 </DialogContent>
               </Dialog>
-              {projects.map((project, index) => (
-                <Dialog key={index}>
-                  <DialogTrigger asChild>
-                    <Card className="bg-red-50 cursor-pointer hover:bg-red-100 transition-colors duration-200 border rounded-none">
-                      <CardContent className="pt-6 space-y-2">
-                        <h3 className="font-semibold">{project.name}</h3>
-                        <p className="text-sm text-gray-600">
-                          {project.description}
-                        </p>
-                        <a
-                          href={project.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-red-600 hover:underline flex items-center"
-                        >
-                          View Project <ExternalLink className="ml-1 h-3 w-3" />
-                        </a>
-                      </CardContent>
-                    </Card>
-                  </DialogTrigger>
-                  <DialogContent className="bg-gray-100">
-                    <DialogHeader>
-                      <DialogTitle>Edit Project</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 mt-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-project-name">Project Name</Label>
-                        <Input
-                          id="edit-project-name"
-                          defaultValue={project.name}
-                        />
+              {Array.isArray(projects) && projects.length > 0 ? (
+                projects.map((project, index) => (
+                  <Dialog key={index}>
+                    <DialogTrigger asChild>
+                      <Card className="bg-red-50 cursor-pointer hover:bg-red-100 transition-colors duration-200 border rounded-none">
+                        <CardContent className="pt-6 space-y-2">
+                          <h3 className="font-semibold">{project.name}</h3>
+                          <p className="text-sm text-gray-600">
+                            {project.description}
+                          </p>
+                          <a
+                            href={project.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-red-600 hover:underline flex items-center"
+                          >
+                            View Project{" "}
+                            <ExternalLink className="ml-1 h-3 w-3" />
+                          </a>
+                        </CardContent>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent className="bg-gray-100">
+                      <DialogHeader>
+                        <DialogTitle>Edit Project</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 mt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-project-name">
+                            Project Name
+                          </Label>
+                          <Input
+                            id="edit-project-name"
+                            defaultValue={project.name}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-project-description">
+                            Project Description
+                          </Label>
+                          <Textarea
+                            id="edit-project-description"
+                            defaultValue={project.description}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-project-link">
+                            Project Link
+                          </Label>
+                          <Input
+                            id="edit-project-link"
+                            defaultValue={project.link}
+                          />
+                        </div>
+                        <div className="flex justify-between">
+                          <Button
+                            variant="destructive"
+                            onClick={() => removeProject(index)}
+                          >
+                            Delete Project
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              const name = (
+                                document.getElementById(
+                                  "edit-project-name"
+                                ) as HTMLInputElement
+                              ).value;
+                              const description = (
+                                document.getElementById(
+                                  "edit-project-description"
+                                ) as HTMLTextAreaElement
+                              ).value;
+                              const link = (
+                                document.getElementById(
+                                  "edit-project-link"
+                                ) as HTMLInputElement
+                              ).value;
+                              handleProjectChange(index, {
+                                name,
+                                description,
+                                link,
+                              });
+                            }}
+                          >
+                            Save Changes
+                          </Button>
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-project-description">
-                          Project Description
-                        </Label>
-                        <Textarea
-                          id="edit-project-description"
-                          defaultValue={project.description}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="edit-project-link">Project Link</Label>
-                        <Input
-                          id="edit-project-link"
-                          defaultValue={project.link}
-                        />
-                      </div>
-                      <div className="flex justify-between">
-                        <Button
-                          variant="destructive"
-                          onClick={() => removeProject(index)}
-                        >
-                          Delete Project
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            const name = (
-                              document.getElementById(
-                                "edit-project-name"
-                              ) as HTMLInputElement
-                            ).value;
-                            const description = (
-                              document.getElementById(
-                                "edit-project-description"
-                              ) as HTMLTextAreaElement
-                            ).value;
-                            const link = (
-                              document.getElementById(
-                                "edit-project-link"
-                              ) as HTMLInputElement
-                            ).value;
-                            handleProjectChange(index, {
-                              name,
-                              description,
-                              link,
-                            });
-                          }}
-                        >
-                          Save Changes
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              ))}
+                    </DialogContent>
+                  </Dialog>
+                ))
+              ) : (
+                <p>No project available.</p>
+              )}
             </div>
 
             <Button
