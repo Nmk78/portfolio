@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { FloatingDock } from "./floating-dock";
 import { IconArrowRight } from "@tabler/icons-react";
+import { fetchData } from "@/lib/fetcher";
 
 const items = [
   {
@@ -112,11 +113,11 @@ export const HeroParallax = ({
   // const secondRow = products.slice(5, 10);
   // const thirdRow = products.slice(10, 15);
 
-  const splitProducts = (products:any) => {
+  const splitProducts = (products: any) => {
     let firstRow = [];
     let secondRow = [];
     let thirdRow = [];
-  
+
     if (products.length > 9) {
       // Slice into 3 rows if there are more than 9 products
       const rowSize = Math.ceil(products.length / 3);
@@ -129,10 +130,10 @@ export const HeroParallax = ({
       firstRow = products.slice(0, rowSize);
       secondRow = products.slice(rowSize);
     }
-  
+
     return { firstRow, secondRow, thirdRow };
   };
-  
+
   // Usage
   const { firstRow, secondRow, thirdRow } = splitProducts(products);
 
@@ -185,7 +186,7 @@ export const HeroParallax = ({
         className=""
       >
         <motion.div className="flex flex-row-reverse space-x-reverse space-x-20 mb-20">
-          {firstRow.map((product:any) => (
+          {firstRow.map((product: any) => (
             <ProductCard
               product={product}
               translate={translateX}
@@ -194,7 +195,7 @@ export const HeroParallax = ({
           ))}
         </motion.div>
         <motion.div className="flex flex-row  mb-20 space-x-20 ">
-          {secondRow.map((product:any) => (
+          {secondRow.map((product: any) => (
             <ProductCard
               product={product}
               translate={translateXReverse}
@@ -203,31 +204,56 @@ export const HeroParallax = ({
           ))}
         </motion.div>
         <motion.div className="flex flex-row-reverse space-x-reverse space-x-20">
-          {thirdRow && thirdRow?.map((product:any) => (
-            <ProductCard
-              product={product}
-              translate={translateX}
-              key={product.title}
-            />
-          ))}
+          {thirdRow &&
+            thirdRow?.map((product: any) => (
+              <ProductCard
+                product={product}
+                translate={translateX}
+                key={product.title}
+              />
+            ))}
         </motion.div>
       </motion.div>
-        <Link
-          className="absolute flex w-36 mb-0 md:mb-7 md:w-44 h-10 group items-center justify-start bottom-0 right-0 md:right-10 text-lg font-bold underline text-red-500"
-          href="/projects"
-        >
-          <span> All Projects</span>
+      <Link
+        className="absolute flex w-36 mb-0 md:mb-7 md:w-44 h-10 group items-center justify-start bottom-0 right-0 md:right-10 text-lg font-bold underline text-red-500"
+        href="/projects"
+      >
+        <span> All Projects</span>
 
-          <IconArrowRight className="h-6 w-6 transition-all duration-300 group-hover:ml-3 text-red-500 dark:text-white" />
-        </Link>
+        <IconArrowRight className="h-6 w-6 transition-all duration-300 group-hover:ml-3 text-red-500 dark:text-white" />
+      </Link>
     </div>
   );
 };
 
 export const Header = () => {
+  // types.ts
+  interface UserInfo {
+    id: string;
+    name: string;
+    bio: string;
+    description: string;
+  }
+
   const [showImage, setShowImage] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const [info, setInfo] = useState<UserInfo | null>(null);
+
+  useEffect(() => {
+    const fetchDataIfNeeded = async () => {
+      if (!info) {
+        const { data } = await fetchData(
+          "http://localhost:3000/api/info",
+          setInfo
+        );
+      }
+    };
+
+    fetchDataIfNeeded();
+  }, [info]); // Re-run when info changes
+
+  console.log("🚀 ~ Header ~ info:", info);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -260,18 +286,31 @@ export const Header = () => {
       className="max-w-7xl mx-auto mt-60 relative py-16 md:py-40 w-full left-0 top-0 transition-all duration-300"
     >
       <div className="flex flex-col justify-center space-y-5 mx-7 md:mx-14">
-        <div id="top" className="relative space-y-4 z-10">
-          <h1 className="text-3xl md:text-7xl font-bold text-red-800 dark:text-white">
-            Nay Myo Khant
-          </h1>
-          <h1 className="text-xl md:text-4xl md:font-bold text-red-800 dark:text-white">
-            A Computerphile
-          </h1>
+        <h1 className="text-3xl md:text-7xl font-bold text-red-800 dark:text-white">
+          {info ? (
+            info.name
+          ) : (
+            <div className="w-4/5 md:w-1/3 h-10 bg-gray-300 animate-pulse rounded-lg"></div>
+          )}
+        </h1>
+        <h2 className="text-xl md:text-4xl md:font-bold text-red-800 dark:text-white">
+          {info ? (
+            info.bio
+          ) : (
+            <div className="w-2/3 md:w-1/2 h-6 bg-gray-300 animate-pulse rounded-full"></div>
+          )}
+        </h2>
+        <div className="max-w-2xl text-base font-semibold md:text-xl mt-8 dark:text-gray-700">
+          {info ? (
+            info.description
+          ) : (
+            <div className="flex flex-col space-y-2">
+              <div className="w-full h-5 bg-gray-300 animate-pulse rounded-full"></div>
+              <div className="w-full h-5 bg-gray-300 animate-pulse rounded-full"></div>
+              <div className="w-4/5 h-5 bg-gray-300 animate-pulse rounded-full"></div>
+            </div>
+          )}
         </div>
-        <p className="max-w-2xl text-base font-semibold md:text-xl mt-8 dark:text-gray-700">
-          Computer Studied student passionate about software engineering and
-          academic research, eager to innovate and explore new technologies.
-        </p>
         <FloatingDock items={items} />
       </div>
 

@@ -37,38 +37,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
+import Loading from "./Loading";
 
 export default function ManagmentPanel() {
+  const [personalInfo, setPersonalInfo] = useState({});
+  const { user } = useUser();
 
-  const [personalInfo, setPersonalInfo] = useState({
-    github: "nmk78",
-    name: "John Doe",
-    bio: "Full-stack developer",
-    description: "Passionate about creating user-friendly web applications.",
-  });
-  const [projects, setProjects] = useState([
-    {
-      id: 1, // Assuming each project has a unique ID
-      name: "Portfolio Website",
-      description: "Personal portfolio showcasing my work",
-      link: "https://johndoe.com",
-    },
-    {
-      id: 2,
-      name: "Task Manager",
-      description: "A React-based task management application",
-      link: "https://taskmanager.com",
-    },
-  ]);
+  const [projects, setProjects] = useState([]);
   const [personalInfoChanged, setPersonalInfoChanged] = useState(false);
 
-  const [skills, setSkills] = useState([
-    "React",
-    "Node.js",
-    "TypeScript",
-    "Python",
-  ]);
-  const [cv, setCv] = useState("https://naymyokhant.me/cv.pdf");
+  const [skills, setSkills] = useState([]);
+  const [cv, setCv] = useState("");
 
   // New states for tracking changes
   const [projectsToAdd, setProjectsToAdd] = useState<any>([]);
@@ -79,14 +59,12 @@ export default function ManagmentPanel() {
   const [skillsToUpdate, setSkillsToUpdate] = useState([]);
   const [skillsToDelete, setSkillsToDelete] = useState([]);
 
-  console.log("Initial Data:", { personalInfo, projects, skills, cv });
-
   // Handle personal info change
   const handlePersonalInfoChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-  
+
     setPersonalInfo((prevInfo) => {
       // Only update if there's an actual change
       if (prevInfo[name as keyof typeof prevInfo] !== value) {
@@ -134,7 +112,6 @@ export default function ManagmentPanel() {
         updatedProject,
       ]); // Track for updates
     }
-    console.log("🚀 ~ ManagmentPanel ~ projectsToUpdate:", projectsToUpdate);
   };
 
   // Handle deleting a project
@@ -195,88 +172,91 @@ export default function ManagmentPanel() {
     );
   };
 
-  // Handle submit, sending changes to backend
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-  // Submit personal info only if it has changed
-  if (personalInfoChanged) {
-    await fetch("/api/personalInfo", {
-      method: "PUT", // Assuming you're updating existing info
-      body: JSON.stringify(personalInfo),
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-    // Process projects: Add, Update, Delete
-    await Promise.all(
-      projectsToAdd.map(async (project) => {
-        await fetch("/api/projects", {
-          method: "POST",
-          body: JSON.stringify(project),
-          headers: { "Content-Type": "application/json" },
-        });
-      })
-    );
-
-    await Promise.all(
-      projectsToUpdate.map(async (project) => {
-        await fetch(`/api/projects?id="${project.name}"`, {
+    //FIXME: Handle Loading
+    try {
+      if (personalInfoChanged) {
+        await fetch("/api/info", {
           method: "PUT",
-          body: JSON.stringify(project),
+          body: JSON.stringify(personalInfo),
           headers: { "Content-Type": "application/json" },
         });
-      })
-    );
+          console.log("🚀 ~ handleSubmit ~ personalInfo:", personalInfo)
+      }
 
-    await Promise.all(
-      projectsToDelete.map(async (projectId) => {
-        await fetch(`/api/projects?id="${projectId}`, {
-          method: "DELETE",
-        });
-      })
-    );
+      // Process projects: Add, Update, Delete
+      await Promise.all(
+        projectsToAdd.map(async (project) => {
+          await fetch("/api/projects", {
+            method: "POST",
+            body: JSON.stringify(project),
+            headers: { "Content-Type": "application/json" },
+          });
+        })
+      );
 
-    // Process skills: Add, Update, Delete
-    await Promise.all(
-      skillsToAdd.map(async (skill) => {
-        await fetch("/api/skills", {
-          method: "POST",
-          body: JSON.stringify({ name: skill }),
-          headers: { "Content-Type": "application/json" },
-        });
-      })
-    );
+      await Promise.all(
+        projectsToUpdate.map(async (project) => {
+          await fetch(`/api/projects?id=${project.id}`, {
+            method: "PUT",
+            body: JSON.stringify(project),
+            headers: { "Content-Type": "application/json" },
+          });
+        })
+      );
 
-    await Promise.all(
-      skillsToUpdate.map(async (skill) => {
-        await fetch(`/api/skills?id="${skill}`, {
-          method: "PUT",
-          body: JSON.stringify({ name: skill }),
-          headers: { "Content-Type": "application/json" },
-        });
-      })
-    );
+      await Promise.all(
+        projectsToDelete.map(async (projectId) => {
+          await fetch(`/api/projects?id=${projectId}`, {
+            method: "DELETE",
+          });
+        })
+      );
 
-    await Promise.all(
-      skillsToDelete.map(async (skill) => {
-        await fetch(`/api/skills?id="${skill}`, {
-          method: "DELETE",
-        });
-      })
-    );
+      // Process skills: Add, Update, Delete
+      await Promise.all(
+        skillsToAdd.map(async (skill) => {
+          await fetch("/api/skills", {
+            method: "POST",
+            body: JSON.stringify({ name: skill }),
+            headers: { "Content-Type": "application/json" },
+          });
+        })
+      );
 
-    // After submission, clear the state of tracking changes
-    setProjectsToAdd([]);
-    setProjectsToUpdate([]);
-    setProjectsToDelete([]);
-    setSkillsToAdd([]);
-    setSkillsToUpdate([]);
-    setSkillsToDelete([]);
+      await Promise.all(
+        skillsToUpdate.map(async (skill) => {
+          await fetch(`/api/skills?id=${skill.id}`, {
+            method: "PUT",
+            body: JSON.stringify({ name: skill.name }),
+            headers: { "Content-Type": "application/json" },
+          });
+        })
+      );
 
-    console.log("Data submitted:", { personalInfo, projects, skills, cv });
+      await Promise.all(
+        skillsToDelete.map(async (skillId) => {
+          await fetch(`/api/skills?id=${skillId}`, {
+            method: "DELETE",
+          });
+        })
+      );
+
+      // After submission, clear the state of tracking changes
+      setProjectsToAdd([]);
+      setProjectsToUpdate([]);
+      setProjectsToDelete([]);
+      setSkillsToAdd([]);
+      setSkillsToUpdate([]);
+      setSkillsToDelete([]);
+
+      console.log("Data submitted successfully");
+    } catch (error) {
+      console.error("Error submitting data:", error);
+    }
   };
-
-  /////////////
 
   return (
     <form
@@ -291,17 +271,46 @@ export default function ManagmentPanel() {
               Personal Information
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-x-4 md:flex md:flex-row flex-col">
-            <div className="flex-shrink-0">
-              <Image
-                src="https://avatars.githubusercontent.com/u/111330986?v=4"
-                alt="Profile"
-                width={150}
-                height={150}
-                className="object-cover w-full h-full"
-              />
+          <CardContent className="space-x-4 flex md:flex-row flex-col justify-center items-center">
+            <div className="md:w-1/3 w-1/2 flex-shrink-0">
+              {!user ? (
+                <Loading />
+              ) : (
+                <Image
+                  src={user?.imageUrl}
+                  alt="Profile"
+                  width={150}
+                  height={150}
+                  className="object-cover w-full h-full rounded-full md:rounded-sm"
+                />
+              )}{" "}
             </div>
-            <div className="flex-grow space-y-4 mt-4 md:mt-0">
+
+            <div className="md:w-2/3 flex-grow space-y-2 mt-4 md:mt-0">
+              <div className="space-y-2">
+                <Dialog>
+                  <div className="space-y-2 sm:space-y-0 sm:flex sm:space-x-4">
+                    <div className="w-full sm:w-1/2 space-y-2">
+                      <Label className="text-sm font-medium">Github</Label>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between cursor-not-allowed opacity-70"
+                      >
+                        {user?.username}
+                      </Button>
+                    </div>
+                    <div className="w-full sm:w-1/2 space-y-2">
+                      <Label className="text-sm font-medium">Email</Label>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-between overflow-x-clip cursor-not-allowed opacity-70"
+                      >
+                        {user?.primaryEmailAddress?.emailAddress}
+                      </Button>
+                    </div>
+                  </div>
+                </Dialog>
+              </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Name</Label>
                 <Dialog>
@@ -327,8 +336,8 @@ export default function ManagmentPanel() {
                     />
                   </DialogContent>
                 </Dialog>
-              </div>
-              <div className="space-y-2">
+              </div>{" "}
+              <div className="space-y-2 w-full">
                 <Label className="text-sm font-medium">Bio</Label>
                 <Dialog>
                   <DialogTrigger asChild>

@@ -1,62 +1,123 @@
-import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import PersonalInfo from "@/models/PersonalInfo"; // Import your Mongoose model
-import dbConnect from "@/lib/dbConnect"; // MongoDB connection setup (this can be a helper function)
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { personalInfoSchema } from '@/lib/validations';
+import { ZodError } from 'zod';
+
+export async function GET() {
+  try {
+    const personalInfo = await prisma.personalInfo.findFirst();
+    
+    const responseEnvelope = {
+      status: 'success',
+      message: 'Personal info retrieved successfully',
+      data: personalInfo,
+    };
+    
+    return NextResponse.json(responseEnvelope);
+  } catch (error) {
+    const errorResponseEnvelope = {
+      status: 'error',
+      error: error, // Debugging information
+      message: 'Failed to fetch personal info',
+      data: null,
+    };
+    return NextResponse.json(errorResponseEnvelope, { status: 500 });
+  }
+}
 
 export async function PUT(request: Request) {
   try {
-    // Connect to MongoDB
-    await dbConnect();
+    const body = await request.json();
+    const validatedData = personalInfoSchema.parse(body);
 
-    // Parse the request body
-    const updatedPersonalInfo = await request.json();
-    const { userId, name, bio, description } = updatedPersonalInfo;
+    // Fetch the existing personal info entry
+    const personalInfoEntry = await prisma.personalInfo.findFirst();
 
-    // Ensure all necessary fields are present
-    if (!userId || !name || !bio || !description) {
-      return NextResponse.json(
-        { message: "Missing required fields" },
-        { status: 400 } // Bad Request
-      );
-    }
+    if (personalInfoEntry) {
+      // Update the existing entry
+      const updatedInfo = await prisma.personalInfo.update({
+        where: { id: personalInfoEntry.id }, // Use the actual ObjectID here
+        data: validatedData,
+      });
 
-    // Check if personal info already exists for this user
-    const existingPersonalInfo = await PersonalInfo.findOne({ userId });
-
-    if (!existingPersonalInfo) {
-      // If no existing info, create a new record
-      const newPersonalInfo = await PersonalInfo.create(updatedPersonalInfo);
-      return NextResponse.json(
-        {
-          message: "Personal info created successfully",
-          personalInfo: newPersonalInfo,
-        },
-        { status: 201 } // 201 Created
-      );
+      const responseEnvelope = {
+        status: 'success',
+        message: 'Personal info updated successfully',
+        data: updatedInfo,
+      };
+      
+      return NextResponse.json(responseEnvelope);
     } else {
-      // If it exists, update the existing record
-      existingPersonalInfo.name = name;
-      existingPersonalInfo.bio = bio;
-      existingPersonalInfo.description = description;
+      // Create a new entry if none exists
+      const newInfo = await prisma.personalInfo.create({
+        data: validatedData,
+      });
 
-      const updatedInfo = await existingPersonalInfo.save();
-
-      return NextResponse.json(
-        {
-          message: "Personal info updated successfully",
-          personalInfo: updatedInfo,
-        },
-        { status: 200 } // 200 OK
-      );
+      const responseEnvelope = {
+        status: 'success',
+        message: 'Personal info created successfully',
+        data: newInfo,
+      };
+      
+      return NextResponse.json(responseEnvelope, { status: 201 });
     }
-  } catch (error) {
-    console.error("Error processing personal info:", error);
-    return NextResponse.json(
-      {
-        message: "Failed to process personal info",
-        error: error.message,
-      },
-      { status: 500 } // 500 Internal Server Error
-    );
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      const errorResponseEnvelope = {
+        status: 'error',
+        error: error.errors, // Zod validation errors
+        message: 'Validation error occurred',
+        data: null,
+      };
+      return NextResponse.json(errorResponseEnvelope, { status: 400 });
+    }
+
+    const errorResponseEnvelope = {
+      status: 'error',
+      error: error, // Debugging information
+      message: 'Failed to update personal info',
+      data: null,
+    };
+
+    return NextResponse.json(errorResponseEnvelope, { status: 500 });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const validatedData = personalInfoSchema.parse(body);
+
+    // Create a new personal info entry
+    const newPersonalInfo = await prisma.personalInfo.create({
+      data: validatedData,
+    });
+
+    const responseEnvelope = {
+      status: 'success',
+      message: 'Personal info created successfully',
+      data: newPersonalInfo,
+    };
+
+    return NextResponse.json(responseEnvelope, { status: 201 }); // 201 Created
+  } catch (error: unknown) {
+    if (error instanceof ZodError) {
+      const errorResponseEnvelope = {
+        status: 'error',
+        error: error.errors, // Zod validation errors
+        message: 'Validation error occurred',
+        data: null,
+      };
+      return NextResponse.json(errorResponseEnvelope, { status: 400 });
+    }
+
+    const errorResponseEnvelope = {
+      status: 'error',
+      error: error, // Debugging information
+      message: 'Failed to create personal info',
+      data: null,
+    };
+
+    return NextResponse.json(errorResponseEnvelope, { status: 500 });
   }
 }

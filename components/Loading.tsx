@@ -3,8 +3,8 @@ import React from "react";
 
 const Loading = () => {
   return (
-    <div className="flex justify-center items-center h-96">
-        <Loader color="#956BEB" size={40}/>
+    <div className="flex justify-center animate-spin items-center h-full">
+        <Loader color="#DC2626" size={40}/>
     </div>
   );
 };

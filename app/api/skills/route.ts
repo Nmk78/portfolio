@@ -1,38 +1,105 @@
-import { NextResponse } from 'next/server';
-import { getSkills, addSkill, updateSkill, deleteSkill } from '@/lib/skills';
+import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { skillSchema } from "@/lib/validations";
+import { checkDatabaseConnection } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
-// POST - Add a new skill
-export async function POST(req: Request) {
+// GET Handler
+export async function GET() {
   try {
-    const skill = await req.json();
-    const addedSkill = await addSkill(skill.name);
-    return NextResponse.json({ success: true, data: addedSkill }, { status: 201 });
+    const skills = await prisma.skill.findMany();
+
+    const responseEnvelope = {
+      status: 'success',
+      message: 'Skills retrieved successfully',
+      data: skills,
+    };
+
+    return NextResponse.json(responseEnvelope);
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to add skill' }, { status: 500 });
+    const errorResponseEnvelope = {
+      status: 'error',
+      message: 'Failed to fetch skills',
+      error: error, // Debugging info
+      data: null,
+    };
+
+    return NextResponse.json(errorResponseEnvelope, { status: 500 });
   }
 }
 
-// PUT - Update an existing skill
-export async function PUT(req: Request) {
+// POST Handler
+export async function POST(request: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id'); // Get skill name or id from the query string
-    const skill = await req.json();
-    const updatedSkill = await updateSkill(id, skill.name);
-    return NextResponse.json({ success: true, data: updatedSkill }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to update skill' }, { status: 500 });
-  }
-}
+    // Check database connection first
+    const isConnected = await checkDatabaseConnection();
+    if (!isConnected) {
+      throw new Error("Failed to connect to the database");
+    }
 
-// DELETE - Remove a skill
-export async function DELETE(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id'); // Get skill name or id from the query string
-    await deleteSkill(id);
-    return NextResponse.json({ success: true, message: 'Skill deleted' }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to delete skill' }, { status: 500 });
+    console.log("✅ DB connection established");
+
+    const body = await request.json();
+    const validatedData = skillSchema.parse(body);
+    console.log("🚀 ~ POST ~ validatedData:", validatedData);
+
+    const newSkill = await prisma.skill.create({
+      data: validatedData,
+    });
+    console.log("🚀 ~ POST ~ Created newSkill:", newSkill);
+
+    const responseEnvelope = {
+      status: 'success',
+      message: 'Skill created successfully',
+      data: newSkill,
+    };
+
+    return NextResponse.json(responseEnvelope, { status: 201 });
+  } catch (error: unknown) {
+    console.error("Detailed error:", error);
+
+    if (error instanceof ZodError) {
+      const errorResponseEnvelope = {
+        status: 'error',
+        message: 'Validation error occurred',
+        error: error.errors,
+        data: null,
+      };
+      return NextResponse.json(errorResponseEnvelope, { status: 400 });
+    }
+
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+
+      if ("code" in error && (error as any).code === "P2002") {
+        const errorResponseEnvelope = {
+          status: 'error',
+          message: 'Skill already exists',
+          error: error.message,
+          data: null,
+        };
+        return NextResponse.json(errorResponseEnvelope, { status: 400 });
+      }
+
+      const errorResponseEnvelope = {
+        status: 'error',
+        message: `Failed to create skill: ${error.message}`,
+        error: error,
+        data: null,
+      };
+
+      return NextResponse.json(errorResponseEnvelope, { status: 500 });
+    }
+
+    const unknownErrorResponseEnvelope = {
+      status: 'error',
+      message: 'An unknown error occurred',
+      error: error,
+      data: null,
+    };
+
+    return NextResponse.json(unknownErrorResponseEnvelope, { status: 500 });
   }
 }
