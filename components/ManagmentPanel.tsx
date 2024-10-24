@@ -43,6 +43,7 @@ import { Project, Skill, PersonalInfo, useData } from "@/context/DataContext";
 import { fetchData } from "@/lib/fetcher";
 
 export default function ManagmentPanel() {
+  
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
   const { user } = useUser();
 
@@ -478,7 +479,7 @@ export default function ManagmentPanel() {
                         <DialogTitle>Edit Skill</DialogTitle>
                       </DialogHeader>
                       <Input
-                        defaultValue={skill}
+                        defaultValue={skill.name}
                         onChange={(e) => updateSkill(index, e.target.value)}
                       />
                       <div className="flex justify-between mt-4">

@@ -1,10 +1,9 @@
 "use client";
 import { HeroParallax } from "@/components/ui/hero-parallax";
-import React from "react";
+import React, { useEffect } from "react";
 import Graph from "./Graph";
 import Footer from "./Footer";
-
-
+import { useData } from "@/context/DataContext";
 
 export const products = [
   {
@@ -111,14 +110,13 @@ export const products = [
   },
 ];
 export default function Home() {
-  
+
   return (
     <>
       <HeroParallax products={products} />
-      
-        <Graph />
+
+      <Graph />
       <Footer />
     </>
   );
 }
-

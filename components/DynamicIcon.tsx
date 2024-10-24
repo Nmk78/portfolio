@@ -8,6 +8,7 @@ export default function DynamicIcons({ icon }: any) {
     <img
       height="32"
       width="32"
+      alt={icon}
       src={`https://cdn.simpleicons.org/${icon}`}
     />
   );

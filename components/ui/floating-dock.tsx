@@ -16,13 +16,15 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import DynamicIcons from "../DynamicIcon";
+import { toNamespacedPath } from "path";
 
 export const FloatingDock = ({
   items,
   desktopClassName,
   mobileClassName,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { id: string; name: string }[];
   desktopClassName?: string;
   mobileClassName?: string;
 }) => {
@@ -110,7 +112,7 @@ const FloatingDockMobile = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { id: string; name: string }[];
   className?: string;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -150,7 +152,7 @@ const FloatingDockMobile = ({
           >
             {items.map((item, idx) => (
               <motion.div
-                key={item.title}
+                key={item.id}
                 initial={{ opacity: 0, y: -30 }}
                 animate={{
                   opacity: 1,
@@ -165,12 +167,9 @@ const FloatingDockMobile = ({
                 }}
                 transition={{ delay: (items.length - 1 - idx) * 0.05 }}
               >
-                <Link
-                  href={item.href}
-                  className="h-10 w-10 rounded-full flex items-center"
-                >
-                  <div className="">{item.icon}</div>
-                </Link>
+                <div className="h-10 w-10 rounded-full flex items-center">
+                  <DynamicIcons icon={item.name} />
+                </div>
               </motion.div>
             ))}
           </motion.div>
@@ -180,12 +179,11 @@ const FloatingDockMobile = ({
   );
 };
 
-
 const FloatingDockDesktop = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: { id: string; name: string }[];
   className?: string;
 }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -226,23 +224,20 @@ const FloatingDockDesktop = ({
         className
       )}
     >
-      {isVisible && items?.map((item, idx) => (
-        <IconContainer  mouseX={mouseX} key={item.title} {...item} />
-      ))}
+      {isVisible &&
+        items?.map((item, idx) => (
+          <IconContainer mouseX={mouseX} key={item.id} {...item} />
+        ))}
     </motion.div>
   );
 };
 
 function IconContainer({
   mouseX,
-  title,
-  icon,
-  href,
+  name,
 }: {
   mouseX: MotionValue;
-  title: string;
-  icon: React.ReactNode;
-  href: string;
+  name: string;
 }) {
   let ref = useRef<HTMLDivElement>(null);
 
@@ -287,7 +282,7 @@ function IconContainer({
   const [hovered, setHovered] = useState(false);
 
   return (
-    <Link href={href}>
+    <div>
       <motion.div
         ref={ref}
         style={{ width, height }}
@@ -304,7 +299,7 @@ function IconContainer({
               // Reduce padding here
               className="px-1 py-0.5 whitespace-pre rounded-md bg-gray-100 border dark:bg-neutral-800 dark:border-neutral-900 dark:text-white border-gray-200 text-neutral-700 absolute left-1/2 -translate-x-1/2 -top-8 w-fit text-xs"
             >
-              {title}
+              {name}
             </motion.div>
           )}
         </AnimatePresence>
@@ -312,11 +307,9 @@ function IconContainer({
           style={{ width: widthIcon, height: heightIcon }}
           className="flex items-center justify-center"
         >
-          {icon}
+          <DynamicIcons icon={name} />
         </motion.div>
       </motion.div>
-    </Link>
+    </div>
   );
 }
-
-

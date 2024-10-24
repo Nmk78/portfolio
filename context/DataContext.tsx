@@ -146,17 +146,17 @@ const [loading, setLoading] = useState(true);
       const [projectsResponse, skillsResponse, personalInfoResponse] = await Promise.all([
         axios.get<{ data: Project[] }>('http://localhost:3000/api/projects'),
         axios.get<{ data: Skill[] }>('http://localhost:3000/api/skills'),
-        axios.get<PersonalInfo>('http://localhost:3000/api/info'),
+        axios.get<{data: PersonalInfo}>('http://localhost:3000/api/info'),
       ]);
 
       setProjects(projectsResponse.data.data);
       setSkills(skillsResponse.data.data);
-      setPersonalInfo(personalInfoResponse.data);
+      setPersonalInfo(personalInfoResponse.data.data);
 
       console.log("🚀 ~ Fetched Data: ", {
         projects: projectsResponse.data.data,
         skills: skillsResponse.data.data,
-        personalInfo: personalInfoResponse.data,
+        personalInfo: personalInfoResponse.data.data,
       });
     } catch (err) {
       setError("An error occurred");
