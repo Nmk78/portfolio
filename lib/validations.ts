@@ -15,3 +15,8 @@ export const projectSchema = z.object({
 export const skillSchema = z.object({
   name: z.string().min(1, "Skill name is required"),
 })
+
+export const cvSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  url: z.string().url("Invalid URL"),
+})

@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
-import { IconFileCv } from '@tabler/icons-react'
-import { cn } from '@/lib/utils'
 
 const navItems = [
   { name: "Home", link: "/" },

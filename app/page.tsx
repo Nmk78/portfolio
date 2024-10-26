@@ -1,4 +1,3 @@
-import Graph from "@/components/Graph";
 import Home from "@/components/Home";
 import React from "react";
 

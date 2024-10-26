@@ -6,7 +6,6 @@ import React, {
   useRef,
   useState,
   useCallback,
-  Suspense,
 } from "react";
 import { DataSet, Network } from "vis-network/standalone";
 import Loading from "./Loading";

@@ -5,7 +5,6 @@
  **/
 
 import { cn } from "@/lib/utils";
-import { IconLayoutNavbarCollapse } from "@tabler/icons-react";
 import {
   AnimatePresence,
   MotionValue,
@@ -14,10 +13,8 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import DynamicIcons from "../DynamicIcon";
-import { toNamespacedPath } from "path";
 
 export const FloatingDock = ({
   items,
@@ -35,78 +32,6 @@ export const FloatingDock = ({
     </>
   );
 };
-
-// const FloatingDockMobile = ({
-//   items,
-//   className,
-// }: {
-//   items: { title: string; icon: React.ReactNode; href: string }[];
-//   className?: string;
-// }) => {
-//   return (
-//     <div className={cn("relative block md:hidden", className)}>
-//       <AnimatePresence>
-//           <motion.div
-//             layoutId="nav"
-//             className="absolute bottom-full mb-2 inset-x-0 flex flex-row flex-wrap gap-2"
-//           >
-//             {items.map((item, idx) => (
-//               <motion.div
-//                 key={item.title}
-//                 initial={{ opacity: 0, y: -10 }}
-//                 animate={{
-//                   opacity: 1,
-//                   y: 100,
-//                 }}
-//                 exit={{
-//                   opacity: 0,
-//                   y: 10,
-//                   transition: {
-//                     delay: idx * 0.05,
-//                   },
-//                 }}
-//                 transition={{ delay: (items.length - 1 - idx) * 0.05 }}
-//               >
-//                 <Link
-//                   href={item.href}
-//                   key={item.title}
-//                   className="h-10 w-10 rounded-full flex items-center justify-center"
-//                 >
-//                   <div className="h-4 w-4">{item.icon}</div>
-//                 </Link>
-//               </motion.div>
-//             ))}
-//           </motion.div>
-//       </AnimatePresence>
-//     </div>
-//   );
-// };
-
-// const FloatingDockDesktop = ({
-//   items,
-//   className,
-// }: {
-//   items: { title: string; icon: React.ReactNode; href: string }[];
-//   className?: string;
-// }) => {
-//   let mouseX = useMotionValue(Infinity);
-//   return (
-//     <motion.div
-//       onMouseMove={(e) => mouseX.set(e.pageX)}
-//       onMouseLeave={() => mouseX.set(Infinity)}
-//       className={cn(
-//         "w-full mx-auto hidden md:flex h-16 gap-4 items-end z-40 rounded-2xl px-0 pb-3",
-//         className
-//       )}
-//     >
-//       {items?.map((item) => (
-//         <IconContainer mouseX={mouseX} key={item.title} {...item} />
-//       ))}
-//     </motion.div>
-//   );
-// };
-
-// Adjust if you're using a different Link component
 
 const FloatingDockMobile = ({
   items,
@@ -288,7 +213,7 @@ function IconContainer({
         style={{ width, height }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="aspect-square z-40 rounded-full bg-gray-200 dark:bg-neutral-800 flex items-center justify-center relative"
+        className="aspect-square z-40 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center relative"
       >
         <AnimatePresence>
           {hovered && (

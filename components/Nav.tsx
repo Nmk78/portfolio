@@ -3,8 +3,6 @@ import React from "react";
 import {
   IconHome,
   IconMessage,
-  IconUser,
-  IconSettings2,
   IconCode,
 } from "@tabler/icons-react";
 import FloatingNav from "./ui/floating-navbar";

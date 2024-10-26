@@ -31,5 +31,10 @@ model Project {
 model Skill {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   name String @unique
-  iconName String
+}
+
+model Cv {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String 
+  url String
 }

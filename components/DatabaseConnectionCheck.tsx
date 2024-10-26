@@ -21,6 +21,7 @@ export default function DatabaseConnectionCheck() {
       }
       setMessage(data.message)
     } catch (error) {
+      console.log("🚀 ~ checkConnection ~ error:", error)
       setConnectionStatus('error')
       setMessage('An error occurred while checking the connection')
     }

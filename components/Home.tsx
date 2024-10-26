@@ -1,10 +1,12 @@
 "use client";
 import { HeroParallax } from "@/components/ui/hero-parallax";
-import React, { useEffect } from "react";
+import React from "react";
 import Graph from "./Graph";
 import Footer from "./Footer";
 import { useData } from "@/context/DataContext";
 
+
+//FIXME: To make dynamic when projects are added
 export const products = [
   {
     title: "Library Managment System",

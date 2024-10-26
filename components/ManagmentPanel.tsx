@@ -1,4 +1,3 @@
-//@ts-nocheck
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,28 +5,19 @@ import {
   Trash2,
   Plus,
   Save,
-  ChevronDown,
-  ChevronUp,
   User,
   Briefcase,
   Code,
   FileText,
   ExternalLink,
   Pencil,
-  PlusSquare,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -39,29 +29,31 @@ import {
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import Loading from "./Loading";
-import { Project, Skill, PersonalInfo, useData } from "@/context/DataContext";
+import { Project, Skill, PersonalInfo, CV } from "@/context/DataContext";
 import { fetchData } from "@/lib/fetcher";
 
-export default function ManagmentPanel() {
-  
+import { useEdgeStore } from "@/lib/edgestore";
+import { UploadAbortedError } from "@edgestore/react/errors";
+import { FileState, MultiFileDropzone } from "@/lib/EdgeMultiFileUploadZone";
+interface ExtendedProject extends Project {}
+import { getDownloadUrl } from "@edgestore/react/utils";
+
+export default function ManagementPanel() {
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
   const { user } = useUser();
 
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [personalInfoChanged, setPersonalInfoChanged] =
-    useState<boolean>(false);
-
+  const [projects, setProjects] = useState<ExtendedProject[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [cv, setCv] = useState<string>("");
-
-  // New states for tracking changes
-  const [projectsToAdd, setProjectsToAdd] = useState<Project[]>([]);
-  const [projectsToUpdate, setProjectsToUpdate] = useState<Project[]>([]);
-  const [projectsToDelete, setProjectsToDelete] = useState<string[]>([]);
-
-  const [skillsToAdd, setSkillsToAdd] = useState<Skill[]>([]);
-  const [skillsToUpdate, setSkillsToUpdate] = useState<Skill[]>([]);
-  const [skillsToDelete, setSkillsToDelete] = useState<string[]>([]); // assuming id is a string
+  const [cv, setCv] = useState<CV | undefined>(undefined);
+  const [viewCVurl, setViewCVurl] = useState<string | undefined>(undefined);
+  const [fileStates, setFileStates] = useState<FileState[]>([]);
+  const [uploadRes, setUploadRes] = useState<
+    {
+      url: string;
+      filename: string;
+    }[]
+  >([]);
+  const { edgestore } = useEdgeStore();
 
   useEffect(() => {
     const fetchDataIfNeeded = async () => {
@@ -71,259 +63,428 @@ export default function ManagmentPanel() {
           setPersonalInfo
         );
       }
-    };
-
-    fetchDataIfNeeded();
-  }, [personalInfo]); // Re-run when info changes
-
-
-  useEffect(() => {
-    console.log("🚩Running Skills Fetch");
-    
-    const fetchDataIfNeeded = async () => {
-      // Check if skills is an empty array
-      if (skills?.length === 0) {
+      if (skills.length === 0) {
         const { data } = await fetchData(
           "http://localhost:3000/api/skills",
           setSkills
         );
-        console.log("🚀 ~ Skills fetched:", data);
-      } else {
-        console.log("🚀 ~ Skills already fetched:", skills);
       }
-    };
-  
-    fetchDataIfNeeded();
-  }, [skills]); // Run only once on mount
-  
-  
-  useEffect(() => {
-    console.log("🚩Running Projects Fetch");
-    
-    const fetchDataIfNeeded = async () => {
-      // Check if projects is an empty array
-      if (projects?.length === 0) {
+      if (projects.length === 0) {
         const { data } = await fetchData(
           "http://localhost:3000/api/projects",
           setProjects
         );
-        console.log("🚀 ~ Projects fetched:", data);
-      } else {
-        console.log("🚀 ~ Projects already fetched:", projects);
+      }
+      if (!cv) {
+        const { data } = await fetchData("http://localhost:3000/api/cv", setCv);
       }
     };
-  
+
     fetchDataIfNeeded();
-  }, [projects]); // Run only once on mount
-  
+  }, [personalInfo, skills, projects, cv]);
 
-  console.log("🚀 ~ personalInfo ~ info:", personalInfo);
-  console.log("🚀 ~ skills ~ info:", skills);
-  console.log("🚀 ~ projects ~ info:", projects);
-
-  // Handle personal info change
   const handlePersonalInfoChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-
-    setPersonalInfo((prevInfo) => {
-      // Only update if there's an actual change
-      if (prevInfo[name as keyof typeof prevInfo] !== value) {
-        setPersonalInfoChanged(true); // Mark as changed if any field differs
-        return {
-          ...prevInfo,
-          [name]: value,
-        };
-      }
-      return prevInfo; // No change detected
-    });
-  };
-
-  // Handle adding a new project
-  const addProject = (newProject: {
-    id?: number;
-    name: string;
-    description: string;
-    link: string;
-  }) => {
-    const tempProject = { ...newProject, id: Date.now() }; // Temporary ID for unsaved projects
-    setProjects([...projects, tempProject]);
-    setProjectsToAdd([...projectsToAdd, tempProject]); // Add to projectsToAdd list
-  };
-
-  // Handle updating an existing project
-  const handleProjectChange = (
-    index: number,
-    updatedProject: {
-      id: number;
-      name: string;
-      description: string;
-      link: string;
-    }
-  ) => {
-    const updatedProjects = [...projects];
-    updatedProjects[index] = updatedProject;
-    setProjects(updatedProjects);
-
-    // If it's a new project (in the add list), don't put in update list
-    const isInAddList = projectsToAdd.some((p) => p.id === updatedProject.id);
-    if (!isInAddList) {
-      setProjectsToUpdate([
-        ...projectsToUpdate.filter((p) => p.id !== updatedProject.id),
-        updatedProject,
-      ]); // Track for updates
-    }
-  };
-
-  // Handle deleting a project
-  const removeProject = (index: number) => {
-    const projectToRemove = projects[index];
-    setProjects(projects.filter((_, i) => i !== index));
-
-    // Track for deletion if it's an existing project
-    if (
-      projectToRemove.id &&
-      !projectsToAdd.some((p) => p.id === projectToRemove.id)
-    ) {
-      setProjectsToDelete([...projectsToDelete, projectToRemove.id]);
-    }
-
-    // Remove from the projectsToAdd if it's a newly added project
-    setProjectsToAdd(projectsToAdd.filter((p) => p.id !== projectToRemove.id));
-    setProjectsToUpdate(
-      projectsToUpdate.filter((p) => p.id !== projectToRemove.id)
-    ); // Remove from update list if necessary
-  };
-
-  // Handle adding a new skill
-  const addSkill = (newSkill: string) => {
-    setSkills([...skills, newSkill]);
-    setSkillsToAdd([...skillsToAdd, newSkill]); // Track it as a new skill to add
-  };
-
-  // Handle updating a skill
-  const updateSkill = (index: number, updatedSkill: string) => {
-    const updatedSkills = [...skills];
-    updatedSkills[index] = updatedSkill;
-    setSkills(updatedSkills);
-
-    const isInAddList = skillsToAdd.includes(updatedSkill);
-    if (!isInAddList) {
-      setSkillsToUpdate([
-        ...skillsToUpdate.filter((skill) => skill !== skills[index]),
-        updatedSkill,
-      ]); // Track updates
-    }
-  };
-
-  // Handle deleting a skill
-  const removeSkill = (index: number) => {
-    const skillToRemove = skills[index];
-    setSkills(skills.filter((_, i) => i !== index));
-
-    // If it's not a newly added skill, mark for deletion
-    if (!skillsToAdd.includes(skillToRemove)) {
-      setSkillsToDelete([...skillsToDelete, skillToRemove]);
-    }
-
-    // Remove from add or update lists if necessary
-    setSkillsToAdd(skillsToAdd.filter((skill) => skill !== skillToRemove));
-    setSkillsToUpdate(
-      skillsToUpdate.filter((skill) => skill !== skillToRemove)
+    setPersonalInfo((prevInfo) =>
+      prevInfo ? { ...prevInfo, [name]: value } : null
     );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    //FIXME: Handle Loading
-    try {
-      if (personalInfoChanged) {
+  const handlePersonalInfoSubmit = async () => {
+    if (personalInfo) {
+      try {
         await fetch("/api/info", {
           method: "PUT",
           body: JSON.stringify(personalInfo),
           headers: { "Content-Type": "application/json" },
         });
+        console.log("Personal info updated successfully");
+      } catch (error) {
+        console.error("Error updating personal info:", error);
       }
-
-      // Process projects: Add, Update, Delete
-      await Promise.all(
-        projectsToAdd.map(async (project) => {
-          await fetch("/api/projects", {
-            method: "POST",
-            body: JSON.stringify(project),
-            headers: { "Content-Type": "application/json" },
-          });
-        })
-      );
-
-      await Promise.all(
-        projectsToUpdate.map(async (project) => {
-          await fetch(`/api/projects?id=${project.id}`, {
-            method: "PUT",
-            body: JSON.stringify(project),
-            headers: { "Content-Type": "application/json" },
-          });
-        })
-      );
-
-      await Promise.all(
-        projectsToDelete.map(async (projectId) => {
-          await fetch(`/api/projects?id=${projectId}`, {
-            method: "DELETE",
-          });
-        })
-      );
-
-      // Process skills: Add, Update, Delete
-      await Promise.all(
-        skillsToAdd.map(async (skill) => {
-          await fetch("/api/skills", {
-            method: "POST",
-            body: JSON.stringify({ name: skill }),
-            headers: { "Content-Type": "application/json" },
-          });
-        })
-      );
-
-      await Promise.all(
-        skillsToUpdate.map(async (skill) => {
-          await fetch(`/api/skills?id=${skill.id}`, {
-            method: "PUT",
-            body: JSON.stringify({ name: skill.name }),
-            headers: { "Content-Type": "application/json" },
-          });
-        })
-      );
-
-      await Promise.all(
-        skillsToDelete.map(async (skillId) => {
-          await fetch(`/api/skills?id=${skillId}`, {
-            method: "DELETE",
-          });
-        })
-      );
-
-      // After submission, clear the state of tracking changes
-      setProjectsToAdd([]);
-      setProjectsToUpdate([]);
-      setProjectsToDelete([]);
-      setSkillsToAdd([]);
-      setSkillsToUpdate([]);
-      setSkillsToDelete([]);
-
-      console.log("Data submitted successfully");
-    } catch (error) {
-      console.error("Error submitting data:", error);
     }
   };
 
+  const addSkill = async (newSkill: string) => {
+    try {
+      const response = await fetch("/api/skills", {
+        method: "POST",
+        body: JSON.stringify({ name: newSkill }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const addedSkill = await response.json();
+      console.log("🚀 ~ addSkill ~ addedSkill:", addedSkill);
+      setSkills([...skills, addedSkill.data]);
+    } catch (error) {
+      console.error("Error adding skill:", error);
+    }
+  };
+
+  // const updateSkill = async (skillId: string, updatedSkillName: string) => {
+  //   try {
+  //     await fetch(`/api/skills?id=${skillId}`, {
+  //       method: "PUT",
+  //       body: JSON.stringify({ name: updatedSkillName }),
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+  //     setSkills(
+  //       skills.map((skill) =>
+  //         // skill.id === skillId ? { ...skill, name: updatedSkillName } : skill
+  //       skill.id === String(skillId) ? { ...skill, name: updatedSkillName } : skill
+  //       )
+  //     );
+  //   } catch (error) {
+  //     console.error("Error updating skill:", error);
+  //   }
+  // };
+
+  const removeSkill = async (skillId: string) => {
+    try {
+      await fetch(`/api/skills?id=${skillId}`, {
+        method: "DELETE",
+      });
+      setSkills(skills.filter((skill) => skill.id !== skillId));
+    } catch (error) {
+      console.error("Error removing skill:", error);
+    }
+  };
+
+  const addProject = async (newProject: {
+    name: string;
+    description: string;
+    link: string;
+    images: File[];
+  }) => {
+    try {
+      const formData = new FormData();
+      formData.append("name", newProject.name);
+      formData.append("description", newProject.description);
+      formData.append("link", newProject.link);
+      newProject.images.forEach((image, index) => {
+        formData.append(`image${index}`, image);
+      });
+
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        body: formData,
+      });
+      const addedProject = await response.json();
+      setProjects([...projects, addedProject]);
+    } catch (error) {
+      console.error("Error adding project:", error);
+    }
+  };
+
+  const updateProject = async (
+    projectId: string,
+    updatedProject: Project,
+    newImages: File[]
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("name", updatedProject.name);
+      formData.append("description", updatedProject.description);
+      formData.append("link", updatedProject.link);
+      updatedProject.images.forEach((image, index) => {
+        formData.append(`existingImage${index}`, JSON.stringify(image));
+      });
+      newImages.forEach((image, index) => {
+        formData.append(`newImage${index}`, image);
+      });
+
+      await fetch(`/api/projects?id=${projectId}`, {
+        method: "PUT",
+        body: formData,
+      });
+      setProjects(
+        projects.map((project) =>
+          project.id === projectId ? updatedProject : project
+        )
+      );
+    } catch (error) {
+      console.error("Error updating project:", error);
+    }
+  };
+
+  const removeProject = async (projectId: string) => {
+    try {
+      await fetch(`/api/projects?id=${projectId}`, {
+        method: "DELETE",
+      });
+      setProjects(projects.filter((project) => project.id !== projectId));
+    } catch (error) {
+      console.error("Error removing project:", error);
+    }
+  };
+
+  function updateFileState(key: string, changes: Partial<FileState>) {
+    setFileStates((prevStates) => {
+      return prevStates.map((fileState) => {
+        if (fileState.key === key) {
+          return { ...fileState, ...changes };
+        }
+        return fileState;
+      });
+    });
+  }
+
+  // const handleUploadClick = async (
+  //   cv: CV | undefined,
+  //   event: React.MouseEvent<HTMLButtonElement>
+  // ) => {
+  //   event.preventDefault(); // Prevent default button behavior
+
+  //   try {
+  //     await Promise.all(
+  //       fileStates.map(async (fileState) => {
+  //         try {
+  //           if (fileState.progress !== "PENDING") return;
+  //           const abortController = new AbortController();
+  //           updateFileState(fileState.key, { abortController });
+
+  //           // Create a custom file name
+  //           const customFileName = `Nay_Myo_Khant_cv`; // Adjust the prefix as needed
+  //           const customFile = new File([fileState.file], customFileName, {
+  //             type: fileState.file.type,
+  //           });
+  //           console.log(
+  //             "🚀 ~ fileStates.map ~ customFileName:",
+  //             customFileName
+  //           );
+
+  //           // Determine whether to upload a new file or replace an existing one
+  //           let res;
+
+  //           if (cv && cv.url) {
+  //             // If cv exists and has a URL, replace the existing file
+  //             res = await edgestore.publicFiles.upload({
+  //               file: customFile,
+  //               options: {
+  //                 replaceTargetUrl: cv.url, // Replace the existing URL
+  //               },
+  //               signal: abortController.signal,
+  //               onProgressChange: async (progress) => {
+  //                 updateFileState(fileState.key, { progress });
+  //                 if (progress === 100) {
+  //                   updateFileState(fileState.key, {
+  //                     progress: "COMPLETE",
+  //                   });
+  //                 }
+  //               },
+  //             });
+  //           } else {
+  //             // If no cv exists or it doesn't have a URL, upload as a new file
+  //             res = await edgestore.publicFiles.upload({
+  //               file: customFile,
+  //               options: {}, // No replacement URL for a new upload
+  //               signal: abortController.signal,
+  //               onProgressChange: async (progress) => {
+  //                 updateFileState(fileState.key, { progress });
+  //                 if (progress === 100) {
+  //                   updateFileState(fileState.key, {
+  //                     progress: "COMPLETE",
+  //                   });
+  //                 }
+  //               },
+  //             });
+  //           }
+
+  //           // Use the original response URL if needed
+  //           setUploadRes((uploadRes) => [
+  //             ...uploadRes,
+  //             {
+  //               url: res.url,
+  //               filename: customFileName, // Set the custom file name here
+  //             },
+  //           ]);
+
+  //           // Prepare CV data to send to the backend
+  //           const cvPayload = {
+  //             name: customFileName,
+  //             url: res.url, // The URL received from the file upload response
+  //           };
+
+  //           // Send CV data to the backend
+  //           const response = await fetch("/api/cv", {
+  //             method: "POST",
+  //             headers: {
+  //               "Content-Type": "application/json",
+  //             },
+  //             body: JSON.stringify(cvPayload),
+  //           });
+
+  //           if (!response.ok) {
+  //             throw new Error("Failed to send CV data to the backend");
+  //           }
+
+  //           const result = await response.json();
+  //           console.log("CV data sent successfully:", result);
+  //         } catch (err) {
+  //           console.error(err);
+  //           if (err instanceof UploadAbortedError) {
+  //             updateFileState(fileState.key, {
+  //               progress: "PENDING",
+  //             });
+  //           } else {
+  //             updateFileState(fileState.key, {
+  //               progress: "ERROR",
+  //             });
+  //           }
+  //         }
+  //       })
+  //     );
+  //   } catch (error) {
+  //     console.error("Failed to process upload:", error);
+  //   }
+  // };
+
+  // Define a type for the MIME type mapping
+  type MimeTypeMap = {
+    [key: string]: string; // This allows any string to be a key
+  };
+
+  // Define the MIME type to extension mapping
+  const mimeToExt: MimeTypeMap = {
+    "application/pdf": "pdf",
+    "application/msword": "doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      "docx",
+    "application/vnd.ms-excel": "xls",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+    "application/vnd.ms-powerpoint": "ppt",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      "pptx",
+    "text/plain": "txt",
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/svg+xml": "svg",
+    // Add other MIME types as needed
+  };
+
+  const handleUploadClick = async (
+    cv: CV | undefined,
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault(); // Prevent default button behavior
+
+    try {
+      await Promise.all(
+        fileStates.map(async (fileState) => {
+          try {
+            if (fileState.progress !== "PENDING") return;
+            const abortController = new AbortController();
+            updateFileState(fileState.key, { abortController });
+
+            // Use a default value if the MIME type is not found
+            const fileExtension = mimeToExt[fileState.file.type] || "bin"; // Default to 'bin' if type not found
+            const customFileName = `Nay_Myo_Khant_cv.${fileExtension}`; // Use the determined extension
+
+            const customFile = new File([fileState.file], customFileName, {
+              type: fileState.file.type,
+            });
+            console.log(
+              "🚀 ~ fileStates.map ~ customFileName:",
+              customFileName
+            );
+
+            // Upload logic remains unchanged
+            let res;
+
+            if (cv && cv.url) {
+              // Replace existing file
+              res = await edgestore.publicFiles.upload({
+                file: customFile,
+                options: {
+                  replaceTargetUrl: cv.url, // Replace the existing URL
+                },
+                signal: abortController.signal,
+                onProgressChange: async (progress) => {
+                  updateFileState(fileState.key, { progress });
+                  if (progress === 100) {
+                    updateFileState(fileState.key, {
+                      progress: "COMPLETE",
+                    });
+                  }
+                },
+              });
+            } else {
+              // Upload as a new file
+              res = await edgestore.publicFiles.upload({
+                file: customFile,
+                options: {}, // No replacement URL for a new upload
+                signal: abortController.signal,
+                onProgressChange: async (progress) => {
+                  updateFileState(fileState.key, { progress });
+                  if (progress === 100) {
+                    updateFileState(fileState.key, {
+                      progress: "COMPLETE",
+                    });
+                  }
+                },
+              });
+            }
+
+            // Use the original response URL if needed
+            setUploadRes((uploadRes) => [
+              ...uploadRes,
+              {
+                url: res.url,
+                filename: customFileName, // Set the custom file name here
+              },
+            ]);
+
+            // Prepare CV data to send to the backend
+            const cvPayload = {
+              name: customFileName,
+              url: res.url, // The URL received from the file upload response
+            };
+
+            // Send CV data to the backend
+            const response = await fetch("/api/cv", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(cvPayload),
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to send CV data to the backend");
+            }
+
+            const result = await response.json();
+            console.log("CV data sent successfully:", result);
+          } catch (err) {
+            console.error(err);
+            if (err instanceof UploadAbortedError) {
+              updateFileState(fileState.key, {
+                progress: "PENDING",
+              });
+            } else {
+              updateFileState(fileState.key, {
+                progress: "ERROR",
+              });
+            }
+          }
+        })
+      );
+    } catch (error) {
+      console.error("Failed to process upload:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (cv?.url) {
+      const extension = cv.url.split(".").pop() ?? "pdf"; // Default to 'pdf' if no extension is found
+      setViewCVurl(getDownloadUrl(cv.url, `Nay_Myo_Khant_cv.${extension}`));
+    }
+  }, [cv]);
+  
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="container mx-auto py-8 mt-16 px-4 max-w-7xl"
-    >
+    <div className="container mx-auto py-8 mt-16 px-4 max-w-7xl">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-min">
         <Card className="md:col-span-2 md:row-span-2 border rounded-none shadow-none">
           <CardHeader>
@@ -335,7 +496,9 @@ export default function ManagmentPanel() {
           <CardContent className="space-x-4 flex md:flex-row flex-col justify-center items-center">
             <div className="md:w-1/3 w-1/2 flex-shrink-0">
               {!user ? (
-                <Loading />
+                <div className="relative w-full h-52 bg-gray-300 rounded-lg overflow-hidden shadow">
+                  <div className="absolute top-0 left-0 w-full h-full glare"></div>
+                </div>
               ) : (
                 <Image
                   src={user?.imageUrl}
@@ -344,112 +507,71 @@ export default function ManagmentPanel() {
                   height={150}
                   className="object-cover w-full h-full rounded-full md:rounded-sm"
                 />
-              )}{" "}
+              )}
+              <Button
+                onClick={handlePersonalInfoSubmit}
+                className="w-full mt-4 hidden md:block border border-gray-300"
+              >
+                Update Personal Info
+              </Button>
             </div>
 
             <div className="w-full md:w-2/3 flex-grow space-y-2 mt-4 md:mt-0">
-              <div className="space-y-2">
-                <Dialog>
-                  <div className="space-y-2 sm:space-y-0 sm:flex sm:space-x-4">
-                    <div className="w-full sm:w-1/2 space-y-2">
-                      <Label className="text-sm font-medium">Github</Label>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between cursor-not-allowed opacity-70"
-                      >
-                        {user?.username}
-                      </Button>
-                    </div>
-                    <div className="w-full sm:w-1/2 space-y-2">
-                      <Label className="text-sm font-medium">Email</Label>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-between overflow-x-clip cursor-not-allowed opacity-70"
-                      >
-                        {user?.primaryEmailAddress?.emailAddress}
-                      </Button>
-                    </div>
-                  </div>
-                </Dialog>
+              <div className="space-y-2 sm:space-y-0 sm:flex sm:space-x-4">
+                <div className="w-full sm:w-1/2 space-y-2">
+                  <Label className="text-sm font-medium">Github</Label>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between cursor-not-allowed opacity-70"
+                  >
+                    {user?.username}
+                  </Button>
+                </div>
+                <div className="w-full sm:w-1/2 space-y-2">
+                  <Label className="text-sm font-medium">Email</Label>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between overflow-x-clip cursor-not-allowed opacity-70"
+                  >
+                    {user?.primaryEmailAddress?.emailAddress}
+                  </Button>
+                </div>
               </div>
+
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Name</Label>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between"
-                    >
-                      {personalInfo?.name}
-                      <Pencil className="h-4 w-4 opacity-50" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px] bg-gray-100">
-                    <DialogHeader>
-                      <DialogTitle>Edit Name</DialogTitle>
-                    </DialogHeader>
-                    <Input
-                      id="name"
-                      name="name"
-                      value={personalInfo?.name}
-                      onChange={handlePersonalInfoChange}
-                      className="mt-2"
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>{" "}
-              <div className="space-y-2 w-full">
+                <Input
+                  id="name"
+                  name="name"
+                  value={personalInfo?.name || ""}
+                  onChange={handlePersonalInfoChange}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label className="text-sm font-medium">Bio</Label>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between"
-                    >
-                      {personalInfo?.bio}
-                      <Pencil className="h-4 w-4 opacity-50" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px] bg-gray-100">
-                    <DialogHeader>
-                      <DialogTitle>Edit Bio</DialogTitle>
-                    </DialogHeader>
-                    <Input
-                      id="bio"
-                      name="bio"
-                      value={personalInfo?.bio}
-                      onChange={handlePersonalInfoChange}
-                      className="mt-2"
-                    />
-                  </DialogContent>
-                </Dialog>
+                <Input
+                  id="bio"
+                  name="bio"
+                  value={personalInfo?.bio || ""}
+                  onChange={handlePersonalInfoChange}
+                />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Description</Label>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-between h-auto whitespace-normal"
-                    >
-                      {personalInfo?.description}
-                      <Pencil className="h-4 w-4 opacity-50 ml-2 flex-shrink-0" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[425px] bg-gray-100">
-                    <DialogHeader>
-                      <DialogTitle>Edit Description</DialogTitle>
-                    </DialogHeader>
-                    <Textarea
-                      id="description"
-                      name="description"
-                      value={personalInfo?.description}
-                      onChange={handlePersonalInfoChange}
-                      className="mt-2"
-                    />
-                  </DialogContent>
-                </Dialog>
+                <Textarea
+                  id="description"
+                  name="description"
+                  className="border-gray-300"
+                  value={personalInfo?.description || ""}
+                  onChange={handlePersonalInfoChange}
+                />
               </div>
+              <Button
+                onClick={handlePersonalInfoSubmit}
+                className="w-full mt-4 md:hidden block border border-gray-300"
+              >
+                Update Personal Info
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -463,80 +585,76 @@ export default function ManagmentPanel() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2 mb-4">
-              {Array.isArray(skills) && skills.length > 0 ? (
-                skills.map((skill, index) => (
-                  <Dialog key={index}>
-                    <DialogTrigger asChild>
-                      <Badge
-                        variant="secondary"
-                        className="text-red-600 bg-red-100 cursor-pointer"
-                      >
-                        {skill.name}
-                      </Badge>
-                    </DialogTrigger>
-                    <DialogContent className="bg-gray-100">
-                      <DialogHeader>
-                        <DialogTitle>Edit Skill</DialogTitle>
-                      </DialogHeader>
-                      <Input
-                        defaultValue={skill.name}
-                        onChange={(e) => updateSkill(index, e.target.value)}
-                      />
-                      <div className="flex justify-between mt-4">
-                        <Button
-                          variant="destructive"
-                          onClick={() => removeSkill(index)}
-                        >
-                          Remove
-                        </Button>
-                        <Button
-                          onClick={() =>
-                            updateSkill(
-                              index,
-                              (
-                                document.querySelector(
-                                  "input"
-                                ) as HTMLInputElement
-                              ).value
-                            )
-                          }
-                        >
-                          Save
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                ))
-              ) : (
-                <p>No skills available.</p>
+              {skills.length < 1 && (
+                <>
+                  <Badge
+                    variant="secondary"
+                    className="text-red-600 animate-pulse w-[7ch] h-5 bg-red-100"
+                  ></Badge>
+                  <Badge
+                    variant="secondary"
+                    className="text-red-600 animate-pulse w-[10ch] h-5 bg-red-100"
+                  ></Badge>
+                  <Badge
+                    variant="secondary"
+                    className="text-red-600 animate-pulse w-[15ch] h-5 bg-red-100"
+                  ></Badge>
+                  <Badge
+                    variant="secondary"
+                    className="text-red-600 animate-pulse w-[8ch] h-5 bg-red-100"
+                  ></Badge>
+                  <Badge
+                    variant="secondary"
+                    className="text-red-600 animate-pulse w-[13ch] h-5 bg-red-100"
+                  ></Badge>
+                </>
               )}
+              {skills.map((skill) => (
+                <Badge
+                  key={skill?.id}
+                  variant="secondary"
+                  className="text-red-600 bg-red-100"
+                >
+                  {skill?.name}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeSkill(skill.id)}
+                    className="ml-2 p-0 h-auto"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </Badge>
+              ))}
             </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Skill
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-gray-100">
-                <DialogHeader>
-                  <DialogTitle>Add New Skill</DialogTitle>
-                </DialogHeader>
-                <Input
-                  placeholder="Enter new skill"
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      addSkill(e.currentTarget.value);
-                      e.currentTarget.value = "";
-                    }
-                  }}
-                />
-              </DialogContent>
-            </Dialog>
+            <div className="flex gap-2">
+              <Input
+                placeholder="New skill"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    addSkill(e.currentTarget.value);
+                    e.currentTarget.value = "";
+                  }
+                }}
+              />
+              <Button
+                onClick={() => {
+                  const input = document.querySelector(
+                    'input[placeholder="New skill"]'
+                  ) as HTMLInputElement;
+                  if (input.value) {
+                    addSkill(input.value);
+                    input.value = "";
+                  }
+                }}
+              >
+                Add Skill
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border rounded-none shadow-none">
+        <Card className="border relative rounded-none shadow-none">
           <CardHeader>
             <CardTitle className="flex items-center text-red-600">
               <FileText className="mr-2 h-5 w-5" />
@@ -544,221 +662,280 @@ export default function ManagmentPanel() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-medium">Current CV:</span>
+            <div className=" absolute top-5 right-5 z-40">
               {cv && (
-                <a
-                  href={cv}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center text-sm text-red-600 hover:underline"
-                >
-                  View CV <ExternalLink className="ml-1 h-3 w-3" />
-                </a>
+                <div className="flex flex-col justify-start items-end">
+                  <a
+                    href={viewCVurl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-sm text-red-600 hover:underline"
+                  >
+                    View CV <ExternalLink className="ml-1 h-3 w-3" />
+                  </a>
+                  <p className=" text-base text-red-600">{cv.name}</p>
+                </div>
               )}
             </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Update CV
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-gray-100">
-                <DialogHeader>
-                  <DialogTitle>Update CV Link</DialogTitle>
-                </DialogHeader>
-                <Input
-                  placeholder="Enter new CV link"
-                  value={cv}
-                  onChange={(e) => setCv(e.target.value)}
+            <div className="flex flex-col justify-start items-center space-x-2">
+              {/* <Input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handleCVUpload(e.target.files[0]);
+                  }
+                }}
+              /> */}
+              <div className="h-24 w-full flex flex-col ">
+                <MultiFileDropzone
+                  className="flex-grow"
+                  value={fileStates}
+                  dropzoneOptions={{
+                    maxFiles: 1,
+                  }}
+                  onChange={setFileStates}
+                  onFilesAdded={async (addedFiles) => {
+                    setFileStates([...fileStates, ...addedFiles]);
+                  }}
                 />
-              </DialogContent>
-            </Dialog>
+                <Button
+                  className="mt-0"
+                  // onClick={async () => {
+                  //   await Promise.all(
+                  //     fileStates.map(async (fileState) => {
+                  //       try {
+                  //         if (fileState.progress !== "PENDING") return;
+                  //         const abortController = new AbortController();
+                  //         updateFileState(fileState.key, { abortController });
+
+                  //         // Create a custom file name
+                  //         const customFileName = `Nay_Myo_Khant_cv`; // Adjust the prefix as needed
+                  //         const customFile = new File(
+                  //           [fileState.file],
+                  //           customFileName,
+                  //           { type: fileState.file.type }
+                  //         );
+                  //         console.log(
+                  //           "🚀 ~ fileStates.map ~ customFileName:",
+                  //           customFileName
+                  //         );
+
+                  //         const res = await edgestore.publicFiles.upload({
+                  //           file: customFile,
+                  //           // options: {
+                  //           //   replaceTargetUrl: oldFileUrl,
+                  //           // },
+                  //           signal: abortController.signal,
+                  //           onProgressChange: async (progress) => {
+                  //             updateFileState(fileState.key, { progress });
+                  //             if (progress === 100) {
+                  //               updateFileState(fileState.key, {
+                  //                 progress: "COMPLETE",
+                  //               });
+                  //             }
+                  //           },
+                  //         });
+
+                  //         // Use the original response URL if needed
+                  //         setUploadRes((uploadRes) => [
+                  //           ...uploadRes,
+                  //           {
+                  //             url: res.url,
+                  //             filename: customFileName, // Set the custom file name here
+                  //           },
+                  //         ]);
+                  //       } catch (err) {
+                  //         console.error(err);
+                  //         if (err instanceof UploadAbortedError) {
+                  //           updateFileState(fileState.key, {
+                  //             progress: "PENDING",
+                  //           });
+                  //         } else {
+                  //           updateFileState(fileState.key, {
+                  //             progress: "ERROR",
+                  //           });
+                  //         }
+                  //       }
+                  //     })
+                  //   );
+
+                  //   // Save to
+                  // }}
+                  onClick={(event) => handleUploadClick(cv, event)}
+                  disabled={
+                    !fileStates.filter(
+                      (fileState) => fileState.progress === "PENDING"
+                    ).length
+                  }
+                >
+                  Update
+                </Button>
+              </div>
+            </div>
+            {uploadRes.length > 0 && (
+              <div className="mt-2">
+                {uploadRes.map((res) => (
+                  <a
+                    key={res.url}
+                    className="mt-2 block underline"
+                    href={res.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {res.filename}
+                  </a>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card className="md:col-span-3 border rounded-none shadow-none">
-          <CardHeader>
-            <CardTitle className="flex items-center text-red-600">
-              <Briefcase className="mr-2 h-5 w-5" />
-              Projects
-            </CardTitle>
-          </CardHeader>
+          <div className="flex justify-start items-center pr-5">
+            {" "}
+            <CardHeader>
+              <CardTitle className="flex flex-row items-center text-red-600">
+                <Briefcase className="mr-2 h-5 w-5" />
+                Projects
+              </CardTitle>
+            </CardHeader>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-10 flex items-center justify-center"
+                >
+                  <Plus className="h-6 w-6" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px] bg-gray-100">
+                <DialogHeader>
+                  <DialogTitle>Add New Project</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new-project-name">Project Name</Label>
+                    <Input
+                      id="new-project-name"
+                      placeholder="Enter project name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-project-description">
+                      Project Description
+                    </Label>
+                    <Textarea
+                      id="new-project-description"
+                      placeholder="Enter project description"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-project-link">Project Link</Label>
+                    <Input
+                      id="new-project-link"
+                      placeholder="Enter project link"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-project-images">Project Images</Label>
+                    <Input
+                      id="new-project-images"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  className="w-full bg-gray-100 border-2 mt-4"
+                  onClick={() => {
+                    const name = (
+                      document.getElementById(
+                        "new-project-name"
+                      ) as HTMLInputElement
+                    ).value;
+                    const description = (
+                      document.getElementById(
+                        "new-project-description"
+                      ) as HTMLTextAreaElement
+                    ).value;
+                    const link = (
+                      document.getElementById(
+                        "new-project-link"
+                      ) as HTMLInputElement
+                    ).value;
+                    const imageInput = document.getElementById(
+                      "new-project-images"
+                    ) as HTMLInputElement;
+                    const images = imageInput.files
+                      ? Array.from(imageInput.files)
+                      : [];
+                    addProject({ name, description, link, images });
+                  }}
+                >
+                  Add Project
+                </Button>
+              </DialogContent>
+            </Dialog>
+          </div>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full h-full text-center"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Project
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] bg-gray-100">
-                  <DialogHeader>
-                    <DialogTitle>Add New Project</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 mt-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="new-project-name">Project Name</Label>
-                      <Input
-                        id="new-project-name"
-                        placeholder="Enter project name"
+              {projects.map((project) => (
+                <Card key={project.id} className="bg-red-50">
+                  <CardContent className="pt-6 space-y-2">
+                    {project?.images?.length > 0 && (
+                      <Image
+                        src={
+                          project.images.find((img) => img.isCover)?.url ||
+                          project.images[0].url
+                        }
+                        alt={project.name}
+                        width={300}
+                        height={200}
+                        className="object-cover w-full h-40 rounded"
                       />
+                    )}
+                    <h3 className="font-semibold">{project.name}</h3>
+                    <p className="text-sm text-gray-600">
+                      {project.description}
+                    </p>
+                    <a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-red-600 hover:underline flex items-center"
+                    >
+                      View Project <ExternalLink className="ml-1 h-3 w-3" />
+                    </a>
+                    <div className="flex justify-between mt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          // Open a dialog to edit project details and images
+                          // This is a placeholder and should be replaced with a proper dialog component
+                          alert("Edit project: " + project.name);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeProject(project.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="new-project-description">
-                        Project Description
-                      </Label>
-                      <Textarea
-                        id="new-project-description"
-                        placeholder="Enter project description"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="new-project-link">Project Link</Label>
-                      <Input
-                        id="new-project-link"
-                        placeholder="Enter project link"
-                      />
-                    </div>
-                  </div>
-                  <Button
-                    type="button"
-                    className="w-full bg-gray-100 border-2 "
-                    onClick={() => {
-                      const name = (
-                        document.getElementById(
-                          "new-project-name"
-                        ) as HTMLInputElement
-                      ).value;
-                      const description = (
-                        document.getElementById(
-                          "new-project-description"
-                        ) as HTMLTextAreaElement
-                      ).value;
-                      const link = (
-                        document.getElementById(
-                          "new-project-link"
-                        ) as HTMLInputElement
-                      ).value;
-                      addProject({ name, description, link });
-                    }}
-                  >
-                    Add Project
-                  </Button>
-                </DialogContent>
-              </Dialog>
-              {Array.isArray(projects) && projects.length > 0 ? (
-                projects.map((project, index) => (
-                  <Dialog key={index}>
-                    <DialogTrigger asChild>
-                      <Card className="bg-red-50 cursor-pointer hover:bg-red-100 transition-colors duration-200 border rounded-none">
-                        <CardContent className="pt-6 space-y-2">
-                          <h3 className="font-semibold">{project.name}</h3>
-                          <p className="text-sm text-gray-600">
-                            {project.description}
-                          </p>
-                          <a
-                            href={project.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-red-600 hover:underline flex items-center"
-                          >
-                            View Project{" "}
-                            <ExternalLink className="ml-1 h-3 w-3" />
-                          </a>
-                        </CardContent>
-                      </Card>
-                    </DialogTrigger>
-                    <DialogContent className="bg-gray-100">
-                      <DialogHeader>
-                        <DialogTitle>Edit Project</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 mt-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-project-name">
-                            Project Name
-                          </Label>
-                          <Input
-                            id="edit-project-name"
-                            defaultValue={project.name}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-project-description">
-                            Project Description
-                          </Label>
-                          <Textarea
-                            id="edit-project-description"
-                            defaultValue={project.description}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-project-link">
-                            Project Link
-                          </Label>
-                          <Input
-                            id="edit-project-link"
-                            defaultValue={project.link}
-                          />
-                        </div>
-                        <div className="flex justify-between">
-                          <Button
-                            variant="destructive"
-                            onClick={() => removeProject(index)}
-                          >
-                            Delete Project
-                          </Button>
-                          <Button
-                            onClick={() => {
-                              const name = (
-                                document.getElementById(
-                                  "edit-project-name"
-                                ) as HTMLInputElement
-                              ).value;
-                              const description = (
-                                document.getElementById(
-                                  "edit-project-description"
-                                ) as HTMLTextAreaElement
-                              ).value;
-                              const link = (
-                                document.getElementById(
-                                  "edit-project-link"
-                                ) as HTMLInputElement
-                              ).value;
-                              handleProjectChange(index, {
-                                name,
-                                description,
-                                link,
-                              });
-                            }}
-                          >
-                            Save Changes
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                ))
-              ) : (
-                <p>No project available.</p>
-              )}
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-
-            <Button
-              type="submit"
-              className="w-full py-6 bg-red-600 text-white hover:bg-red-700"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save All Changes
-            </Button>
           </CardContent>
         </Card>
       </div>
-    </form>
+    </div>
   );
 }
