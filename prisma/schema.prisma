@@ -22,10 +22,15 @@ model PersonalInfo {
 }
 
 model Project {
-  id          String @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  shortDesc   String
   description String
-  link        String
+  githubLink  String
+  liveLink    String
+  images      String[]
+  techStack   String[]
+  keyFeatures    String[]
 }
 
 model Skill {
@@ -37,4 +42,9 @@ model Cv {
   id   String @id @default(auto()) @map("_id") @db.ObjectId
   name String 
   url String
+}
+
+model ChatContext {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  content String
 }

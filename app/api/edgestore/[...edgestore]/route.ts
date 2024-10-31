@@ -15,7 +15,7 @@ async function createContext({ req }: CreateContextOptions): Promise<Context> {
   const { userId } = getAuth(req);
 
   // Define user role and username
-  let userRole: "admin" | "user" | null = null;
+  // let userRole: "admin" | "user" | null = null;
   let userName: string | null = null;
 
   if (userId) {

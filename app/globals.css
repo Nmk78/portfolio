@@ -69,3 +69,13 @@
     animation: shine 2.5s infinite;
     background-size: 200% 100%;
 }
+
+.masonry {
+  column-count: 4; /* Adjust based on screen size */
+  column-gap: 1rem; /* Space between columns */
+}
+
+.masonry img {
+  break-inside: avoid; /* Prevents images from breaking inside columns */
+  margin-bottom: 1rem; /* Space below each image */
+}

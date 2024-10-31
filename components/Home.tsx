@@ -4,6 +4,7 @@ import React from "react";
 import Graph from "./Graph";
 import Footer from "./Footer";
 import { useData } from "@/context/DataContext";
+import Chat from "./Chat";
 
 
 //FIXME: To make dynamic when projects are added
@@ -117,7 +118,8 @@ export default function Home() {
     <>
       <HeroParallax products={products} />
 
-      <Graph />
+      {/* <Graph /> */}
+      <Chat/>
       <Footer />
     </>
   );

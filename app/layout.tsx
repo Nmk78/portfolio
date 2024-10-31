@@ -1,15 +1,11 @@
-
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
-import {
-  ClerkProvider,
-  SignedOut,
-  SignInButton,
-} from "@clerk/nextjs";
+import { ClerkProvider, SignedOut, SignInButton } from "@clerk/nextjs";
 import { DataProvider } from "@/context/DataContext";
 import { EdgeStoreProvider } from "@/lib/edgestore";
+import { ReactQueryProvider } from "./providers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -61,7 +57,10 @@ export default function RootLayout({
             <SignedOut>
               <SignInButton />
             </SignedOut>
-            <EdgeStoreProvider>{children}</EdgeStoreProvider>
+            <EdgeStoreProvider>
+            <ReactQueryProvider>{children}</ReactQueryProvider>
+
+            </EdgeStoreProvider>
           </DataProvider>
         </body>
       </html>

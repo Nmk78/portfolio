@@ -13,7 +13,8 @@ import { useState, useEffect, useRef } from "react";
 import { FloatingDock } from "./floating-dock";
 import { IconArrowRight } from "@tabler/icons-react";
 import { fetchData } from "@/lib/fetcher";
-import { PersonalInfo, Skill, useData } from "@/context/DataContext";
+import { useData } from "@/context/DataContext";
+import { PersonalInfo, Skill } from "@/lib/types";
 
 const items = [
   {

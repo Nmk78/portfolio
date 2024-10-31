@@ -2,65 +2,67 @@
 
 //@ts-nocheck
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Github, ExternalLink, ChevronRight, } from "lucide-react";
+import { Github, ExternalLink, ChevronRight, Minimize2 } from "lucide-react";
 import DynamicIcons from "./DynamicIcon";
-
-// Fake API fetch function (simulating a 2-second delay)
-const fetchProjectData = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        title: "Library Managment System",
-        subtitle: "Ease way of finding books and using library",
-        githubLink: "https://github.com/yourusername/eco-smart-home",
-        liveLink: "https://eco-smart-home.com",
-        images: [
-          { src: "/images/lbms/adminPanel.png", width: 800, height: 600 },
-          { src: "/images/lbms/home.png", width: 400, height: 300 },
-          { src: "/images/lbms/adminPanel.png", width: 400, height: 300 },
-          { src: "/images/lbms/home.png", width: 400, height: 300 },
-          { src: "/images/lbms/adminPanel.png", width: 400, height: 300 },
-          { src: "/images/lbms/home.png", width: 400, height: 300 },
-        ],
-        techStack: [
-          { name: "expo", logo: "/placeholder.svg?height=40&width=40" },
-          { name: "nodedotjs", logo: "/placeholder.svg?height=40&width=40" },
-          { name: "react", logo: "/placeholder.svg?height=40&width=40" },
-          { name: "tensorflow", logo: "/placeholder.svg?height=40&width=40" },
-          { name: "amazonwebservices", logo: "/placeholder.svg?height=40&width=40" },
-          { name: "android", logo: "/placeholder.svg?height=40&width=40" },
-        ],
-        features: [
-          "Real-time energy monitoring",
-          "AI-powered recommendations",
-          "Smart device integration",
-          "Carbon footprint tracking",
-          "Customizable automation",
-        ],
-      });
-    }, 500); // Simulate 2-second delay
-  });
-};
+import { Description } from "@radix-ui/react-dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { Project } from "@/lib/types";
+import { useParams } from "next/navigation";
 
 export default function ProjectDetails() {
-  const [projectData, setProjectData] = useState(null); // Initially no data
-  const [loading, setLoading] = useState(true); // Loading state
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [project, setProject] = useState<Project | null>(null);
 
-  useEffect(() => {
-    // Simulate API call
-    fetchProjectData().then((data) => {
-      setProjectData(data);
-      setLoading(false); // Set loading to false once data is fetched
-    });
-  }, []);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const { id } = useParams(); // Extract the 'id' from the URL parameters
+  console.log("🚀 ~ ProjectDetails ~ id:", id);
 
-  if (loading) {
+  const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
+
+  const fetchProject = async (id: string | string[]) => {
+    if (!id) return null; // Return null if no ID
+    const response = await axios.get(`/api/projects?id=${id}`);
+    setProject(response.data.data);
+    console.log("🚀 ~ fetchProject ~ response:", response);
+    return response.data.data;
+  };
+
+  // Use useQuery to fetch the project based on ID
+  // const { data: project, isLoading, error } = useQuery(
+  //   ["project"], // Use the ID in the query key
+  //   () => fetchProject(id), // Call fetchProject with the ID
+
+  // );
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["project", id],
+    queryFn: () => {
+      fetchProject(id);
+    },
+  });
+
+  // State for projects
+
+  // useEffect(() => {
+  //   if (project) {
+  //     setProjects(project?.data); // Set the projects state to the fetched data
+  //   }
+  // }, [project])
+
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 mt-12 py-12">
         {/* Skeleton loader for title */}
@@ -120,31 +122,36 @@ export default function ProjectDetails() {
   return (
     <div className="container mx-auto px-4 mt-12 py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">{projectData.title}</h1>
+        <h1 className="text-4xl font-bold mb-2">{project?.title}</h1>
         <p className="text-xl text-muted-foreground mb-4">
-          {projectData.subtitle}
+          {project?.shortDesc}
         </p>
-        <div className="flex flex-wrap gap-4 mb-4">
-          {projectData.techStack.map((tech, index) => (
+        <p className="text-md text-balance text-muted-foreground mb-4">
+          {project?.description}
+        </p>
+
+        <div title="Used tech stacks" className="flex flex-wrap gap-4 mb-4">
+          {project?.techStack?.map((tech, index) => (
             <div
               key={index}
-              className="flex items-center bg-secondary rounded-full px-3 py-1"
+              className="flex items-center bg-secondary rounded-full py-1 space-x-2"
             >
-                {/* <DynamicIcons /> */}
-                <DynamicIcons icon={tech.name} />
-              <span className="text-sm font-medium">{tech.name}</span>
+              {/* <DynamicIcons /> */}
+              <DynamicIcons icon={tech} />
+              <span className="text-sm font-medium">{tech}</span>
             </div>
           ))}
         </div>
+
         <div className="flex gap-4">
-          <Button variant="default" className="flex items-center">
+          <a href={project?.githubLink} className="flex items-center">
             <Github className="w-4 h-4 mr-2" />
             View Code
-          </Button>
-          <Button variant="outline" className="flex items-center">
+          </a>
+          <a href={project?.liveLink} className=" ring-1 ring-gray-300 px-2 py-1.5 rounded-md flex items-center">
             <ExternalLink className="w-4 h-4 mr-2" />
             Live Demo
-          </Button>
+          </a>
         </div>
       </div>
 
@@ -155,7 +162,7 @@ export default function ProjectDetails() {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {projectData.features.map((feature, index) => (
+              {project?.keyFeatures?.map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <ChevronRight className="w-4 h-4 mr-2 text-primary flex-shrink-0 mt-1" />
                   <span>{feature}</span>
@@ -165,19 +172,47 @@ export default function ProjectDetails() {
           </CardContent>
         </Card>
 
-        <div className="aspect-video relative overflow-hidden rounded-lg">
-          <Image
-            src={projectData.images[0].src}
-            alt="Main project image"
-            fill
-            priority
-            className="object-cover"
-          />
+        <div className="w-full h-80 aspect-video relative overflow- rounded-lg">
+          {/* <Image
+          src={project?.images[0].src}
+          alt="Main project image"
+          fill
+          priority
+          className="object-cover"
+        /> */}
+          <Carousel
+            plugins={[plugin.current]}
+            className=" w-full h-80"
+            onMouseEnter={plugin.current.stop}
+            onMouseLeave={plugin.current.reset}
+          >
+            <CarouselContent>
+              {project?.images?.map((image, index) => (
+                <CarouselItem key={index}>
+                  <div className="p-1 ">
+                    <Card className=" border-3 border-red-500">
+                      <CardContent className="flex aspect-video object-contain items-center justify-center p-2">
+                        <Image
+                          src={image}
+                          alt={project.title}
+                          width={800} // Adjust as per your desired width
+                          height={450} // Adjust as per your desired height or aspect ratio
+                          className="object-cover w-full h-full"
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
         </div>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {projectData.images.slice(1).map((image, index) => (
+        {project?.images?.map((image, index) => (
           <motion.div
             key={index}
             whileHover={{ scale: 1.05 }}
@@ -186,7 +221,7 @@ export default function ProjectDetails() {
             className="relative aspect-video overflow-hidden rounded-lg cursor-pointer"
           >
             <Image
-              src={image.src}
+              src={image}
               alt={`Project image ${index + 2}`}
               fill
               className="object-cover"
@@ -211,7 +246,7 @@ export default function ProjectDetails() {
               className="relative max-w-6xl max-h-full"
             >
               <Image
-                src={selectedImage.src}
+                src={selectedImage}
                 placeholder="empty" // "empty" | "blur" | "data:image/..."
                 // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 alt="Selected project image"
@@ -221,14 +256,14 @@ export default function ProjectDetails() {
               />
               <Button
                 variant="secondary"
-                className="absolute top-4 right-4"
+                className="absolute  top-4 right-4"
                 onClick={(e) => {
                   e.stopPropagation();
                   console.log("🚀 ~ ProjectDetails ~ e:", e);
                   setSelectedImage(null);
                 }}
               >
-                Close
+                <Minimize2 className="w-4 h-4 mr-2" />
               </Button>
             </motion.div>
           </motion.div>

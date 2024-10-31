@@ -29,14 +29,65 @@ export async function GET(request: Request) {
     return NextResponse.json(errorResponseEnvelope, { status: 500 });
   }
 }
+// export async function POST(request: Request) {
+//   try {
+//     const body = await request.json();
+//     const validatedData = projectSchema.parse(body);
+
+//     const newProject = await prisma.project.create({
+//       data: validatedData,
+//     });
+
+//     const responseEnvelope = {
+//       status: 'success',
+//       message: 'Project created successfully',
+//       data: newProject,
+//     };
+//     return NextResponse.json(responseEnvelope, { status: 201 });
+//   } catch (error: unknown) {
+//     if (error instanceof ZodError) {
+//       const errorResponseEnvelope = {
+//         status: 'error',
+//         error: error.errors,
+//         message: 'Validation error occurred',
+//         data: null,
+//       };
+//       return NextResponse.json(errorResponseEnvelope, { status: 400 });
+//     }
+
+//     const errorResponseEnvelope = {
+//       status: 'error',
+//       error: error,
+//       message: 'Failed to create project',
+//       data: null,
+//     };
+//     return NextResponse.json(errorResponseEnvelope, { status: 500 });
+//   }
+// }
+
+// PUT Handler
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    console.log("🚀 ~ POST ~ body:", body)
+
+    // Assuming you have a Zod schema for validation
     const validatedData = projectSchema.parse(body);
 
     const newProject = await prisma.project.create({
-      data: validatedData,
+      data: {
+        title: validatedData.title,
+        shortDesc: validatedData.shortDesc, 
+        description: validatedData.description,
+        githubLink: validatedData.githubLink,
+        liveLink: validatedData.liveLink,
+        images: validatedData.images, // Assuming images is an array of strings
+        techStack: validatedData.techStack, // Array of tech stack
+        keyFeatures: validatedData.keyFeatures, // Array of features
+      },
     });
+    // const newProject = await prisma.project.create({data: validatedData});
 
     const responseEnvelope = {
       status: 'success',
@@ -65,7 +116,7 @@ export async function POST(request: Request) {
   }
 }
 
-// PUT Handler
+
 export async function PUT(request: Request) {
   try {
     const { searchParams } = new URL(request.url);

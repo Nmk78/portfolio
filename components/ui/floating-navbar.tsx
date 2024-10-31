@@ -93,20 +93,26 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  const NavLink = ({ item }: { item: NavItem }) => (
-    <Link
-      href={item.link}
-      className={cn(
-        "flex items-center space-x-2 px-2 py-2 text-neutral-600 dark:text-neutral-50 hover:text-neutral-500 dark:hover:text-neutral-300",
-        pathname === item.link && "font-semibold text-red-600 dark:text-red-500"
-      )}
-      onClick={() => setIsMenuOpen(false)}
-    >
-      <span className="block sm:hidden">{item.icon}</span>
-      <span className="block text-sm">{item.name}</span>
-    </Link>
-  );
-
+  const NavLink = ({ item }: { item: NavItem }) => {
+    const isActive = pathname === item.link || pathname.startsWith(`${item.link}/`);
+  
+    return (
+      <Link
+        href={item.link}
+        className={cn(
+          "flex items-center space-x-2 px-2 py-2 text-neutral-600 dark:text-neutral-50 hover:text-neutral-500 dark:hover:text-neutral-300",
+          isActive && "font-semibold text-red-600 dark:text-red-500"
+        )}
+        onClick={() => setIsMenuOpen(false)}
+      >
+        <span className="block sm:hidden">{item.icon}</span>
+        <span className="block text-sm">{item.name}</span>
+      </Link>
+    );
+  };
+  
+  
+  
   return (
     <AnimatePresence mode="wait">
       <motion.div

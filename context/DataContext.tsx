@@ -3,47 +3,12 @@
 "use client";
 
 // types.ts
-interface ProjectImage {
-  id: number;
-  url: string;
-  isCover: boolean;
-  
-}
-
-
-export interface Project {
-  id: string;
-  name: string;
-  description: string;
-  link: string;
-  images: ProjectImage[];
-
-  // Add other relevant fields
-}
-
-export interface Skill {
-  id: string;
-  name: string;
-  // Add other relevant fields
-}
-
-export interface PersonalInfo {
-  id: string;
-  name: string;
-  bio: string;
-  description: string;
-}
-
-export interface CV {
-  id: string;
-  name: string;
-  url: string;
-}
 
 // DataProvider.tsx
 import React, { createContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Url } from 'url';
+import { PersonalInfo, Project, Skill } from '@/lib/types';
 
 interface DataContextType {
   projects: Project[];
@@ -117,3 +82,4 @@ export const useData = () => {
   }
   return context;
 };
+
