@@ -1,4 +1,3 @@
-"use client";
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import React from "react";
 import Graph from "./Graph";
