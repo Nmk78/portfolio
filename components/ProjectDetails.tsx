@@ -46,8 +46,9 @@ import { ScrollArea } from "./ui/scroll-area";
 import { toast } from "./ui/use-toast";
 import { useEdgeStore } from "@/lib/edgestore";
 import CustomAlertDialog from "./ui/CustomAlertDialog";
+import { useAuth } from "@clerk/nextjs";
 
-export default function ProjectDetails() {
+export default async function ProjectDetails() {
   const [project, setProject] = useState<Project | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
@@ -55,6 +56,7 @@ export default function ProjectDetails() {
   const { id } = useParams(); // Extract the 'id' from the URL parameters
   const queryClient = useQueryClient();
   const { edgestore } = useEdgeStore();
+  const { userId } = useAuth(); // Get user information
 
   const [title, setTitle] = useState<string>("");
   const [shortDesc, setShortDesc] = useState<string>("");
@@ -452,7 +454,7 @@ export default function ProjectDetails() {
           </a>
           {/* Edit Button */}
 
-          {project && (
+          {project && userId && (
             <>
               <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
                 <DrawerTrigger asChild>
