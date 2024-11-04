@@ -253,9 +253,16 @@ export default function ProjectDetails() {
       }
 
       // Step 3: Upload new images
-      const newImages = fileStates.filter(
-        (file) => !uploadedImageUrls.includes(file?.url)
-      );
+      // const newImages = fileStates.filter(
+      //   (file) => !uploadedImageUrls.includes(file.url)
+      // );
+
+      const newImages = fileStates.filter((fileState) => {
+        // Create a URL for the file object
+        const fileUrl = URL.createObjectURL(fileState.file);
+        return !uploadedImageUrls.includes(fileUrl);
+      });
+  
       const newImageUrls = await handleUploadImages(newImages);
 
       // Step 4: Prepare updated project data
