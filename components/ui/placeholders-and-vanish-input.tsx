@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChatRequestOptions } from "ai";
 
@@ -14,7 +14,7 @@ export function PlaceholdersAndVanishInput({
 }: {
   placeholders: string[];
   input: string;
-  setInput: () => any;
+  setInput: Dispatch<SetStateAction<string>>; // This expects a function
   handleInputChange: (
     e:
       | React.ChangeEvent<HTMLInputElement>
