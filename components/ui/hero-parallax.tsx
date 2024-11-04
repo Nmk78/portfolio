@@ -16,35 +16,25 @@ import { PersonalInfo, Project, Skill } from "@/lib/types";
 import { useData } from "@/context/DataContext";
 
 export const HeroParallax = () => {
-  const { projects, skills, personalInfo } = useData();
-
-  // useEffect(() => {
-  //   console.log("🚀 ~ State Updated in Management Panel: ", {
-  //     projects,
-  //     skills,
-  //     personalInfo,
-  //     isLoading,
-  //     error,
-  //   });
-  // }, [projects, skills, personalInfo, isLoading, error]);
+  const { projects = [], skills, personalInfo } = useData();
 
   const splitProducts = (projects: Project[] = []) => {
     // Initialize rows
     const firstRow: Project[] = [];
     const secondRow: Project[] = [];
     const thirdRow: Project[] = [];
-
-    // Return early if no projects
-    if (projects.length === 0) {
+  
+    // Return early if no projects or projects is not an array
+    if (!Array.isArray(projects) || projects.length === 0) {
       return { firstRow, secondRow, thirdRow };
     }
-
+  
     // Determine row size based on number of projects
     const rowSize =
       projects.length > 9
         ? Math.ceil(projects.length / 3)
         : Math.ceil(projects.length / 2);
-
+  
     // Split projects into rows
     if (projects.length > 9) {
       firstRow.push(...projects.slice(0, rowSize));
@@ -54,9 +44,10 @@ export const HeroParallax = () => {
       firstRow.push(...projects.slice(0, rowSize));
       secondRow.push(...projects.slice(rowSize));
     }
-
+  
     return { firstRow, secondRow, thirdRow };
   };
+  
 
   // Usage
 
@@ -331,8 +322,8 @@ export const ProjectCard = ({ project, translate }: ProjectCardProps) => {
       >
         <Image
           src={project.images[0]} // Use the first image from the images array as thumbnail
-          height={600}
-          width={600}
+          fill
+          loading="lazy"
           className="object-cover object-left-top absolute h-full w-full inset-0"
           alt={project.title}
         />

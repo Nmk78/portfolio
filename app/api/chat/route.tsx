@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch context from the database
+    //TODO Maybe i can add all my projects from the db to context
     const contextData = await prisma.chatContext.findFirst();
     if (contextData) {
       const exists = await redis.sismember("contextId", contextData.id);
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest) {
       throw new Error("No context found in the database.");
     }
 
-    const res = await ragChat.chat(lastMessage, {
+    const res = await ragChat.chat("Assistance: Act as Nay Myo Khant is replying "+lastMessage, {
       streaming: true,
       sessionId,
     });

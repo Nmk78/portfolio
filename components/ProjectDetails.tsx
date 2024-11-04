@@ -406,10 +406,10 @@ export default function ProjectDetails() {
     <div className="container mx-auto px-4 mt-12 py-12">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">{project?.title}</h1>
-        <p className="text-xl text-muted-foreground mb-4">
+        <p className="text-xl text-gray-900 mb-4">
           {project?.shortDesc}
         </p>
-        <p className="text-md text-balance text-muted-foreground mb-4">
+        <p className="text-md text-balance text-gray-900 mb-4">
           {project?.description}
         </p>
 
@@ -703,42 +703,6 @@ export default function ProjectDetails() {
             </>
           )}
 
-          {/* <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                className=" px-2 py-1.5 rounded-md flex items-center bg-red-500 text-white"
-                variant="outline"
-              >
-                <Trash className="w-4 h-4" /> Delete
-              </Button>
-            </AlertDialogTrigger>{" "}
-            <AlertDialogContent className="fixed left-[50%] space-y-2 top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] border backdrop-blur-xl backdrop-brightness-75 bg-gray-100 p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out">
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>
-                  <Button
-                    variant="outline"
-                  >
-                    Cancel
-                  </Button>
-                </AlertDialogCancel>
-                <AlertDialogAction>
-                  <Button
-                    className=" px-2 py-1.5 rounded-md flex items-center bg-red-500 text-white"
-                    variant="outline"
-                  >
-                    <Trash className="w-4 h-4 mr-1" /> Continue
-                  </Button>
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog> */}
         </div>
       </div>
 
@@ -785,6 +749,7 @@ export default function ProjectDetails() {
                           width={800} // Adjust as per your desired width
                           height={450} // Adjust as per your desired height or aspect ratio
                           className="object-cover w-full h-full"
+                          priority
                         />
                       </CardContent>
                     </Card>
