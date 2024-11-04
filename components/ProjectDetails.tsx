@@ -48,7 +48,7 @@ import { useEdgeStore } from "@/lib/edgestore";
 import CustomAlertDialog from "./ui/CustomAlertDialog";
 import { useAuth } from "@clerk/nextjs";
 
-export default async function ProjectDetails() {
+export default function ProjectDetails() {
   const [project, setProject] = useState<Project | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
