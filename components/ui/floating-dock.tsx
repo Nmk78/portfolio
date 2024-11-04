@@ -113,7 +113,8 @@ const FloatingDockDesktop = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  let mouseX = useMotionValue(Infinity);
+  // let mouseX = useMotionValue(Infinity);
+  const mouseX = useMotionValue(Infinity);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -151,7 +152,7 @@ const FloatingDockDesktop = ({
     >
       {isVisible &&
         items?.map((item, idx) => (
-          <IconContainer mouseX={mouseX} key={item.id} {...item} />
+          <IconContainer mouseX={mouseX} key={idx} {...item} />
         ))}
     </motion.div>
   );
@@ -164,41 +165,42 @@ function IconContainer({
   mouseX: MotionValue;
   name: string;
 }) {
-  let ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
-  let distance = useTransform(mouseX, (val) => {
-    let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
+  const distance = useTransform(mouseX, (val) => {
+    const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
 
     return val - bounds.x - bounds.width / 2;
   });
 
-  let widthTransform = useTransform(distance, [-150, 0, 150], [60, 100, 60]);
-  let heightTransform = useTransform(distance, [-150, 0, 150], [60, 100, 60]);
+  const widthTransform = useTransform(distance, [-150, 0, 150], [60, 100, 60]);
+  const heightTransform = useTransform(distance, [-150, 0, 150], [60, 100, 60]);
 
-  let widthTransformIcon = useTransform(distance, [-150, 0, 150], [30, 50, 30]);
-  let heightTransformIcon = useTransform(
+  const widthTransformIcon = useTransform(distance, [-150, 0, 150], [30, 50, 30]);
+  const heightTransformIcon = useTransform(
     distance,
     [-150, 0, 150],
     [30, 50, 30]
   );
 
-  let width = useSpring(widthTransform, {
-    mass: 0.1,
-    stiffness: 150,
-    damping: 12,
-  });
-  let height = useSpring(heightTransform, {
+  const width = useSpring(widthTransform, {
     mass: 0.1,
     stiffness: 150,
     damping: 12,
   });
 
-  let widthIcon = useSpring(widthTransformIcon, {
+  const height = useSpring(heightTransform, {
     mass: 0.1,
     stiffness: 150,
     damping: 12,
   });
-  let heightIcon = useSpring(heightTransformIcon, {
+
+  const widthIcon = useSpring(widthTransformIcon, {
+    mass: 0.1,
+    stiffness: 150,
+    damping: 12,
+  });
+  const heightIcon = useSpring(heightTransformIcon, {
     mass: 0.1,
     stiffness: 150,
     damping: 12,

@@ -13,9 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import { PersonalInfo } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
 
-import axios from "axios";
 import ContextManager from "./Context";
 import { useData } from "@/context/DataContext";
 

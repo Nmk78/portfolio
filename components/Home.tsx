@@ -1,8 +1,6 @@
 import { HeroParallax } from "@/components/ui/hero-parallax";
 import React from "react";
-import Graph from "./Graph";
 import Footer from "./Footer";
-import { useData } from "@/context/DataContext";
 import Chat from "./Chat";
 
 
@@ -113,13 +111,13 @@ export const products = [
 ];
 export default function Home() {
 
+
   return (
     <>
-      <HeroParallax products={products} />
+      <HeroParallax />
 
-      {/* <Graph /> */}
       <Chat/>
       <Footer />
     </>
-  );
+);
 }

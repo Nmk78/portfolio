@@ -7,21 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-import { useUser } from "@clerk/nextjs";
 import { Skill } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
 
-import axios from "axios";
 import { Badge } from "@/components/ui/badge";
-import { delay } from "framer-motion";
 import { useData } from "@/context/DataContext";
 
 const Skills = () => {
   const [skills, setSkills] = useState<Skill[]>([]);
-  const fetchSkills = async () => {
-    const { data } = await axios.get("/api/skills"); // Adjust the API endpoint accordingly
-    return data;
-  };
+
 
   // const { data, isLoading, error } = useQuery({
 
@@ -41,7 +34,7 @@ useEffect(() => {
   if (!error && !isLoading && data) {
     setSkills(data); // Directly set `personalInfo` from useData
   }
-}, [skills, isLoading, error]);
+}, [data, isLoading, error]);
 
   const addSkill = async (newSkill: string) => {
     try {

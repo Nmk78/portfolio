@@ -1,8 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import { Card, CardContent } from "./ui/card";
-import { Button } from "./ui/button";
-import { Trash2, Pencil, ExternalLink } from "lucide-react"; // Ensure you import icons from lucide-react
 import { Project } from "@/lib/types"; // Import your Project type from the correct path
 import Link from "next/link";
 

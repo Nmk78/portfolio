@@ -11,9 +11,9 @@ interface AlertDialogProps {
   cancelText: string;
   confirmText: string;
   buttonText: string;
-  buttonIcon?: any;
+  buttonIcon?: React.ReactNode;
   project: Project;
-  useDeleteProjectMutation: any
+  useDeleteProjectMutation: () => any; // Adjust type based on your hook
 }
 
 export default function CustomAlertDialog({
@@ -24,7 +24,7 @@ export default function CustomAlertDialog({
   buttonText,
   buttonIcon,
   project,
-  useDeleteProjectMutation
+  useDeleteProjectMutation,
 }: AlertDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -34,7 +34,7 @@ export default function CustomAlertDialog({
   const { mutate: deleteProject } = useDeleteProjectMutation();
 
   const handleConfirm = () => {
-    deleteProject({project});
+    deleteProject({ project });
     closeDialog();
   };
 

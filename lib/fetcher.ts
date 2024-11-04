@@ -11,6 +11,7 @@ export const fetchData = async (url:string, setter:any) => {
     await setter(response.data.data);
     return { data: response.data, error: null }; // Return data and null error
   } catch (error) {
+    console.log("🚀 ~ fetchData ~ error:", error)
     return { data: null, error: 'Failed to fetch data' }; // Return null data and error message
   }
 };

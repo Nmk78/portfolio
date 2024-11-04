@@ -48,9 +48,9 @@ const edgeStoreRouter = es.router({
   publicFiles: es
     .fileBucket()
     // e.g. /publicFiles/cv
-    .path(({ ctx, input }) => [{ cv: ctx.userName }])
+    .path(({ ctx }) => [{ cv: ctx.userName }])
     // this metadata will be added to every file in this bucket
-    .metadata(({ ctx, input }) => ({
+    .metadata(({ ctx }) => ({
       name: ctx.userName,
     })),
   // .beforeDelete(({ ctx, fileInfo }) => {

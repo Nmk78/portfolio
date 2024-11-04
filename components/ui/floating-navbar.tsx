@@ -36,7 +36,7 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
 
   let previousScroll = 0;
 
-  const { cv, isLoading, error } = useData();
+  const { cv } = useData();
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     if (typeof current === "number") {
@@ -89,6 +89,24 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
       );
     }
   });
+
+  const downloadFile = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Network response was not ok");
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = filename; // Set the desired filename here
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl); // Clean up
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
 
   const isManagementRoute = pathname?.startsWith("/management");
 
@@ -150,20 +168,38 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
                 <UserButton />
               </SignedIn>
             ) : (
-              <Link
-                href={!isLoading && cv?.url ? cv.url : "#"} // Provide a default value or disable if no URL
+              //         <Link
+              //           href={!isLoading && cv?.url ? cv.url : "#"} // Provide a default value or disable if no URL
+              //           className={`hidden items-center space-x-2 rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-neutral-600
+              // ${
+              //   !cv?.url
+              //     ? "opacity-50 cursor-not-allowed"
+              //     : "hover:bg-gray-50 hover:text-neutral-500"
+              // }
+              // dark:text-neutral-50 dark:hover:bg-gray-800 dark:hover:text-neutral-300 sm:flex`}
+              //           aria-disabled={!cv?.url} // Set aria-disabled for accessibility when no URL
+              //         >
+              //           <IconFileCv className="h-4 w-4 text-neutral-500 dark:text-white" />
+              //           <span>Download CV</span>
+              //         </Link>
+              <button
+                onClick={() => {
+                  if (cv?.url) {
+                    downloadFile(cv.url.toString(), cv.name); // Trigger download with desired filename
+                  }
+                }}
                 className={`hidden items-center space-x-2 rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-neutral-600 
-      ${
-        !cv?.url
-          ? "opacity-50 cursor-not-allowed"
-          : "hover:bg-gray-50 hover:text-neutral-500"
-      }
-      dark:text-neutral-50 dark:hover:bg-gray-800 dark:hover:text-neutral-300 sm:flex`}
+    ${
+      !cv?.url
+        ? "opacity-50 cursor-not-allowed"
+        : "hover:bg-gray-50 hover:text-neutral-500"
+    }
+    dark:text-neutral-50 dark:hover:bg-gray-800 dark:hover:text-neutral-300 sm:flex`}
                 aria-disabled={!cv?.url} // Set aria-disabled for accessibility when no URL
               >
                 <IconFileCv className="h-4 w-4 text-neutral-500 dark:text-white" />
                 <span>Download CV</span>
-              </Link>
+              </button>
             )}
 
             <button

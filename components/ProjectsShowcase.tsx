@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { AnimatePresence, motion, useAnimation } from "framer-motion";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Project } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil, ExternalLink } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useInView } from "react-intersection-observer";
 
 type ProjectShowcaseProps = {
   projects: Project[];

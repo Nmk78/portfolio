@@ -14,7 +14,7 @@ export function PlaceholdersAndVanishInput({
 }: {
   placeholders: string[];
   input: string;
-  setInput: any;
+  setInput: () => any;
   handleInputChange: (
     e:
       | React.ChangeEvent<HTMLInputElement>
@@ -54,7 +54,7 @@ export function PlaceholdersAndVanishInput({
       }
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [placeholders]);
+  }, [placeholders, startAnimation]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const newDataRef = useRef<any[]>([]);
@@ -84,9 +84,9 @@ export function PlaceholdersAndVanishInput({
     const newData: any[] = [];
 
     for (let t = 0; t < 800; t++) {
-      let i = 4 * t * 800;
+      const i = 4 * t * 800;
       for (let n = 0; n < 800; n++) {
-        let e = i + 4 * n;
+        const e = i + 4 * n;
         if (
           pixelData[e] !== 0 &&
           pixelData[e + 1] !== 0 &&
@@ -208,7 +208,9 @@ export function PlaceholdersAndVanishInput({
         onChange={(e) => {
           if (!animating) {
             setInput(e.target.value);
-            handleInputChange && handleInputChange(e);
+            if (handleInputChange) {
+              handleInputChange(e);
+            }
           }
         }}
         onKeyDown={handleKeyDown}

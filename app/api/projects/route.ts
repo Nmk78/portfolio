@@ -214,13 +214,7 @@ export async function DELETE(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Fetch the project to get its images
-    const project = await prisma.project.findUnique({
-      where: { id },
-      select: { images: true }, // Only fetch images
-    });
-
+    
     // Now delete the project from MongoDB
     await prisma.project.delete({
       where: { id },

@@ -1,7 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { Suspense } from "react";
 
 import PersonalInformation from "./ManagmentPanelComponent/PersonalInformation";
 import Skills from "./ManagmentPanelComponent/Skills";

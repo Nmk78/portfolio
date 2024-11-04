@@ -41,7 +41,6 @@ const Projects = () => {
   const [techStack, setTechStack] = useState<string[]>([]);
   const [liveLink, setLiveLink] = useState<string>("");
   const [fileStates, setFileStates] = useState<FileState[]>([]);
-  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
   const [newTechItem, setNewTechItem] = useState<string>("");
   const [newFeature, setNewFeature] = useState<string>("");
   ////////////
@@ -113,6 +112,7 @@ const Projects = () => {
           });
           urls.push(res.url); // Assuming res contains the URL of the uploaded image
         } catch (err) {
+          console.log("🚀 ~ addedFiles.map ~ err:", err)
           updateFileProgress(addedFileState.key, "ERROR");
         }
       })
@@ -150,7 +150,6 @@ const Projects = () => {
       setProjects((prev) => [...prev, addedProject]);
 
       // Clear uploaded image URLs and file states after adding the project
-      setUploadedImageUrls([]);
       setFileStates([]);
     } catch (error) {
       console.error("Error adding project:", error);
@@ -189,7 +188,7 @@ const Projects = () => {
       setDrawerOpen(false);
     },
 
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       toast({
         variant: "destructive",
         description: "Failed to add project. Please try again.",
@@ -210,46 +209,6 @@ const Projects = () => {
     }
   };
 
-  const updateProject = async (
-    projectId: string,
-    updatedProject: ProjectType,
-    newImages: File[]
-  ) => {
-    // try {
-    //   const formData = new FormData();
-    //   formData.append("name", updatedProject.name);
-    //   formData.append("description", updatedProject.description);
-    //   formData.append("link", updatedProject.link);
-    //   updatedProject.images.forEach((image, index) => {
-    //     formData.append(`existingImage${index}`, JSON.stringify(image));
-    //   });
-    //   newImages.forEach((image, index) => {
-    //     formData.append(`newImage${index}`, image);
-    //   });
-    //   await fetch(`/api/projects?id=${projectId}`, {
-    //     method: "PUT",
-    //     body: formData,
-    //   });
-    //   setProjects(
-    //     projects.map((project) =>
-    //       project.id === projectId ? updatedProject : project
-    //     )
-    //   );
-    // } catch (error) {
-    //   console.error("Error updating project:", error);
-    // }
-  };
-
-  const removeProject = async (projectId: string) => {
-    // try {
-    //   await fetch(`/api/projects?id=${projectId}`, {
-    //     method: "DELETE",
-    //   });
-    //   setProjects(projects.filter((project) => project.id !== projectId));
-    // } catch (error) {
-    //   console.error("Error removing project:", error);
-    // }
-  };
 
   return (
     <Card className="md:col-span-3 border rounded-none shadow-none">

@@ -4,6 +4,7 @@ import { skillSchema } from "@/lib/validations";
 import { checkDatabaseConnection } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
 import { getAuth } from "@clerk/nextjs/server";
+import { Prisma } from "@prisma/client";
 
 // GET Handler
 export async function GET() {
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
     console.error("Detailed error:", error);
 
     if (error instanceof ZodError) {
+      // Zod validation error handling
       const errorResponseEnvelope = {
         status: 'error',
         message: 'Validation error occurred',
@@ -82,12 +84,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(errorResponseEnvelope, { status: 400 });
     }
 
-    if (error instanceof Error) {
-      console.error("Error name:", error.name);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-
-      if ("code" in error && (error as any).code === "P2002") {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      // Handle specific Prisma errors
+      if (error.code === "P2002") {
         const errorResponseEnvelope = {
           status: 'error',
           message: 'Skill already exists',
@@ -96,21 +95,29 @@ export async function POST(request: NextRequest) {
         };
         return NextResponse.json(errorResponseEnvelope, { status: 400 });
       }
+    }
+
+    if (error instanceof Error) {
+      // Handle general errors
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
 
       const errorResponseEnvelope = {
         status: 'error',
         message: `Failed to create skill: ${error.message}`,
-        error: error,
+        error: error.message,
         data: null,
       };
 
       return NextResponse.json(errorResponseEnvelope, { status: 500 });
     }
 
+    // Handle unknown errors
     const unknownErrorResponseEnvelope = {
       status: 'error',
       message: 'An unknown error occurred',
-      error: error,
+      error: String(error),
       data: null,
     };
 

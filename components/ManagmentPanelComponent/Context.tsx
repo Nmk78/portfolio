@@ -63,8 +63,12 @@ export default function ContextManager() {
       setIsOpen(false);
     },
 
-    onError: (error: any) => {
-      console.error("Error updating context:", error);
+    onError: (error: unknown) => {
+      if (error instanceof Error) {
+        console.error("Error updating context:", error.message);
+      } else {
+        console.error("An unknown error occurred:", error);
+      }
     },
   });
 

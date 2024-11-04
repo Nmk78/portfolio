@@ -1,15 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ExternalLink, FileText } from "lucide-react";
+import { useState } from "react";
+import { DownloadCloudIcon, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { useUser } from "@clerk/nextjs";
 import { CV as CV_type, MimeTypeMap } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
 
-import axios from "axios";
 import { FileState, MultiFileDropzone } from "@/lib/EdgeMultiFileUploadZone";
 import { useEdgeStore } from "@/lib/edgestore";
 import { UploadAbortedError } from "@edgestore/react/errors";
@@ -18,8 +15,6 @@ import { useData } from "@/context/DataContext";
 const CV = () => {
   const { edgestore } = useEdgeStore();
 
-  // const [cv, setCv] = useState<CV_type | undefined>(undefined);
-  const [viewCVurl, setViewCVurl] = useState<string | undefined>(undefined);
   const [fileStates, setFileStates] = useState<FileState[]>([]);
   const [uploadRes, setUploadRes] = useState<
     {
@@ -27,24 +22,6 @@ const CV = () => {
       filename: string;
     }[]
   >([]);
-
-  // const fetchCV = async () => {
-  //   const { data } = await axios.get("/api/cv"); // Adjust the API endpoint accordingly
-  //   setCv(data.data);
-  //   return data;
-  // };
-
-  // const { data, isLoading, error } = useQuery({
-
-  //   queryKey: ["cv"],
-  //   queryFn: fetchCV,
-  // });
-
-  // useEffect(() => {
-  //   if (!error && !isLoading) {
-  //     setCv(data.data);
-  //   }
-  // }, [data, isLoading, error]);
 
   const { cv, isLoading, error } = useData();
 
@@ -188,6 +165,24 @@ const CV = () => {
     }
   };
 
+  const downloadFile = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Network response was not ok");
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = filename; // Set the desired filename here
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl); // Clean up
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
+
   return (
     <Card className="border relative rounded-none shadow-none">
       <CardHeader>
@@ -198,7 +193,7 @@ const CV = () => {
       </CardHeader>
       <CardContent>
         <div className=" absolute top-5 right-5 z-40">
-          {isLoading && !cv ? (
+          {isLoading && !error && !cv ? (
             // Skeleton Loader
             <div className="flex flex-col justify-start items-end animate-pulse space-y-2">
               <div className="h-4 w-24 bg-gray-300 rounded-md"></div>{" "}
@@ -209,14 +204,21 @@ const CV = () => {
           ) : (
             cv && (
               <div className="flex flex-col justify-start items-end">
-                <a
-                  href={viewCVurl}
+                {/* <a
+                  href={cv.url.toString()}
+                  download={cv.name}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center text-sm text-red-600 hover:underline"
                 >
                   View CV <ExternalLink className="ml-1 h-3 w-3" />
-                </a>
+                </a> */}
+                <button
+                  onClick={() => downloadFile(cv.url.toString(), cv.name)} // Trigger download with desired filename
+                  className="flex items-center text-sm text-red-600 hover:underline"
+                >
+                  Download CV <DownloadCloudIcon className="ml-1 h-4 w-4" />
+                </button>
                 <p className="text-base text-red-600">{cv.name}</p>
               </div>
             )

@@ -74,6 +74,7 @@ export default function ProjectDetails() {
       const response = await axios.delete(`/api/projects?id=${id}`);
       return response.data;
     } catch (error) {
+      console.log("🚀 ~ deleteProject ~ error:", error);
       throw new Error("Failed to delete project");
     }
   }
@@ -170,7 +171,7 @@ export default function ProjectDetails() {
     return response.data.data;
   };
 
-  const { data, isLoading, error } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ["project", id],
     queryFn: () => {
       fetchProject(id);
@@ -221,6 +222,7 @@ export default function ProjectDetails() {
           });
           urls.push(res.url); // Assuming res contains the URL of the uploaded image
         } catch (err) {
+          console.log("🚀 ~ addedFiles.map ~ err:", err)
           updateFileProgress(addedFileState.key, "ERROR");
         }
       })

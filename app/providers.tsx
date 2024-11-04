@@ -13,7 +13,7 @@ interface ReactQueryProviderProps {
 export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
   const [queryClient] = useState(() => new QueryClient());
 
-  let development = process.env.ENV !== "production";
+  const development = process.env.ENV !== "production";
   console.log("🚀 ~ ReactQueryProvider ~ development:", development);
 
   return (

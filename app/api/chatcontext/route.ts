@@ -7,6 +7,7 @@ export async function GET() {
     const context = await prisma.chatContext.findFirst()
     return NextResponse.json(context || { content: '' }, { status: 200 })
   } catch (error) {
+    console.log("🚀 ~ GET ~ error:", error)
     return NextResponse.json({ error: 'Failed to fetch context' }, { status: 500 })
   }
 }
@@ -17,6 +18,7 @@ export async function POST(request: NextRequest) {
     const context = await prisma.chatContext.create({ data: { content } })
     return NextResponse.json(context, { status: 201 })
   } catch (error) {
+    console.log("🚀 ~ POST ~ error:", error)
     return NextResponse.json({ error: 'Failed to create context' }, { status: 500 })
   }
 }
@@ -39,6 +41,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(newContext, { status: 200 });
   } catch (error) {
+    console.log("🚀 ~ PUT ~ error:", error)
     return NextResponse.json({ error: 'Failed to update context' }, { status: 500 });
   }
 }

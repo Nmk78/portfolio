@@ -12,58 +12,55 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { FloatingDock } from "./floating-dock";
 import { IconArrowRight } from "@tabler/icons-react";
-import { fetchData } from "@/lib/fetcher";
+import { PersonalInfo, Project, Skill } from "@/lib/types";
 import { useData } from "@/context/DataContext";
-import { PersonalInfo, Skill } from "@/lib/types";
 
+export const HeroParallax = () => {
+  const { projects, skills, personalInfo } = useData();
 
-export const HeroParallax = ({
-  products,
-}: {
-  products: {
-    title: string;
-    link: string;
-    route: string;
-    thumbnail: string;
-  }[];
-}) => {
+  // useEffect(() => {
+  //   console.log("🚀 ~ State Updated in Management Panel: ", {
+  //     projects,
+  //     skills,
+  //     personalInfo,
+  //     isLoading,
+  //     error,
+  //   });
+  // }, [projects, skills, personalInfo, isLoading, error]);
 
-  const { projects, skills, personalInfo, isLoading, error } = useData();
+  const splitProducts = (projects: Project[] = []) => {
+    // Initialize rows
+    const firstRow: Project[] = [];
+    const secondRow: Project[] = [];
+    const thirdRow: Project[] = [];
 
-  useEffect(() => {
-    console.log("🚀 ~ State Updated in Management Panel: ", {
-      projects,
-      skills,
-      personalInfo,
-      isLoading,
-      error,
-    });
-  }, [projects, skills, personalInfo, isLoading, error]);
+    // Return early if no projects
+    if (projects.length === 0) {
+      return { firstRow, secondRow, thirdRow };
+    }
 
+    // Determine row size based on number of projects
+    const rowSize =
+      projects.length > 9
+        ? Math.ceil(projects.length / 3)
+        : Math.ceil(projects.length / 2);
 
-  const splitProducts = (products: any) => {
-    let firstRow = [];
-    let secondRow = [];
-    let thirdRow = [];
-
-    if (products.length > 9) {
-      // Slice into 3 rows if there are more than 9 products
-      const rowSize = Math.ceil(products.length / 3);
-      firstRow = products.slice(0, rowSize);
-      secondRow = products.slice(rowSize, rowSize * 2);
-      thirdRow = products.slice(rowSize * 2);
+    // Split projects into rows
+    if (projects.length > 9) {
+      firstRow.push(...projects.slice(0, rowSize));
+      secondRow.push(...projects.slice(rowSize, rowSize * 2));
+      thirdRow.push(...projects.slice(rowSize * 2));
     } else {
-      // Slice into 2 rows if there are 9 or fewer products
-      const rowSize = Math.ceil(products.length / 2);
-      firstRow = products.slice(0, rowSize);
-      secondRow = products.slice(rowSize);
+      firstRow.push(...projects.slice(0, rowSize));
+      secondRow.push(...projects.slice(rowSize));
     }
 
     return { firstRow, secondRow, thirdRow };
   };
 
   // Usage
-  const { firstRow, secondRow, thirdRow } = splitProducts(products);
+
+  const { firstRow, secondRow, thirdRow } = splitProducts(projects);
 
   const ref = React.useRef(null);
   const { scrollYProgress } = useScroll({
@@ -113,18 +110,18 @@ export const HeroParallax = ({
         }}
       >
         <motion.div className="flex flex-row-reverse space-x-reverse space-x-20 mb-20">
-          {firstRow.map((product: any) => (
-            <ProductCard
-              product={product}
+          {firstRow.map((product: Project) => (
+            <ProjectCard
+              project={product}
               translate={translateX}
               key={product.title}
             />
           ))}
         </motion.div>
         <motion.div className="flex flex-row  mb-20 space-x-20 ">
-          {secondRow.map((product: any) => (
-            <ProductCard
-              product={product}
+          {secondRow.map((product: Project) => (
+            <ProjectCard
+              project={product}
               translate={translateXReverse}
               key={product.title}
             />
@@ -132,9 +129,9 @@ export const HeroParallax = ({
         </motion.div>
         <motion.div className="flex flex-row-reverse space-x-reverse space-x-20">
           {thirdRow &&
-            thirdRow?.map((product: any) => (
-              <ProductCard
-                product={product}
+            thirdRow?.map((product: Project) => (
+              <ProjectCard
+                project={product}
                 translate={translateX}
                 key={product.title}
               />
@@ -153,23 +150,15 @@ export const HeroParallax = ({
   );
 };
 
-
-
-
 interface HeaderProps {
   personalInfo?: PersonalInfo; // Make optional
   skills?: Skill[]; // Make optional
 }
 
-
-export const Header:React.FC<HeaderProps> = ({personalInfo, skills}) => {
+export const Header: React.FC<HeaderProps> = ({ personalInfo, skills }) => {
   // types.ts
 
-
   const headerRef = useRef<HTMLDivElement>(null);
-
-
-  
 
   // useEffect(() => {
   //   const fetchDataIfNeeded = async () => {
@@ -183,7 +172,6 @@ export const Header:React.FC<HeaderProps> = ({personalInfo, skills}) => {
 
   //   fetchDataIfNeeded();
   // }, [info]); // Re-run when info changes
-
 
   return (
     <div
@@ -239,18 +227,74 @@ export const Header:React.FC<HeaderProps> = ({personalInfo, skills}) => {
   );
 };
 
-export const ProductCard = ({
-  product,
-  translate,
-}: {
-  product: {
-    title: string;
-    link: string;
-    route: string;
-    thumbnail: string;
-  };
+// export const ProductCard = ({
+//   product,
+//   translate,
+// }: {
+//   product: {
+//     title: string;
+//     link: string;
+//     route: string;
+//     thumbnail: string;
+//   };
+//   translate: MotionValue<number>;
+// }) => {
+//   const [hoverY, setHoverY] = useState(-40); // Default to desktop value
+
+//   useEffect(() => {
+//     // Detect screen size and adjust hoverY value for mobile
+//     const handleResize = () => {
+//       const isMobile = window.innerWidth <= 768; // 768px as mobile breakpoint
+//       setHoverY(isMobile ? 10 : -40);
+//     };
+
+//     // Initial check
+//     handleResize();
+
+//     // Listen for window resize events
+//     window.addEventListener("resize", handleResize);
+
+//     // Cleanup the event listener on unmount
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, []);
+
+//   return (
+//     <motion.div
+//       style={{
+//         x: translate,
+//       }}
+//       whileHover={{
+//         y: hoverY,
+//       }}
+//       key={product.title}
+//       className="group/product h-96 w-[30rem] relative flex-shrink-0"
+//     >
+//       <Link
+//         href={`project/${product.route}`}
+//         className="block group-hover/product:shadow-2xl"
+//       >
+//         <Image
+//           src={product.thumbnail}
+//           height="600"
+//           width="600"
+//           className="object-cover object-left-top absolute h-full w-full inset-0"
+//           alt={product.title}
+//         />
+//       </Link>
+//       <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-80 bg-black pointer-events-none"></div>
+//       <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white">
+//         {product.title}
+//       </h2>
+//     </motion.div>
+//   );
+// };
+
+interface ProjectCardProps {
+  project: Project; // Updated to use the Project interface
   translate: MotionValue<number>;
-}) => {
+}
+
+export const ProjectCard = ({ project, translate }: ProjectCardProps) => {
   const [hoverY, setHoverY] = useState(-40); // Default to desktop value
 
   useEffect(() => {
@@ -278,25 +322,28 @@ export const ProductCard = ({
       whileHover={{
         y: hoverY,
       }}
-      key={product.title}
+      key={project.title}
       className="group/product h-96 w-[30rem] relative flex-shrink-0"
     >
       <Link
-        href={`project/${product.route}`}
+        href={`project/${project.id}`}
         className="block group-hover/product:shadow-2xl"
       >
         <Image
-          src={product.thumbnail}
-          height="600"
-          width="600"
+          src={project.images[0]} // Use the first image from the images array as thumbnail
+          height={600}
+          width={600}
           className="object-cover object-left-top absolute h-full w-full inset-0"
-          alt={product.title}
+          alt={project.title}
         />
       </Link>
       <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-80 bg-black pointer-events-none"></div>
       <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white">
-        {product.title}
+        {project.title}
       </h2>
+      <p className="absolute bottom-16 left-4 opacity-0 group-hover/product:opacity-100 text-white">
+        {project.shortDesc} {/* Displaying the short description */}
+      </p>
     </motion.div>
   );
 };
