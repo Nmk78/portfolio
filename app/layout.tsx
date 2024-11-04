@@ -19,19 +19,22 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+let baseUrl = process.env.url || "http://localhost:3000";
+
+
 export const metadata: Metadata = {
   title: "Nay Myo Khant",
   description: "Passionate computer studied student",
   openGraph: {
     title: "Nay Myo Khant",
     description: "Personal portfolio of a computerphile student.",
-    url: "http://localhost:3000/", // Replace with your actual URL
+    url: baseUrl, // Replace with your actual URL
     siteName: "Nay Myo Khant",
     images: [
       {
         //TODO to change url
         // TODO to change cover image cuz it has ugly download cv text
-        url: "http://localhost:3000/images/cover.jpg", // Replace with your image URL
+        url: `${baseUrl}/images/cover.jpg`, // Replace with your image URL
         width: 800,
         height: 600,
         alt: "Nay Myo Khant - Web Developer",
