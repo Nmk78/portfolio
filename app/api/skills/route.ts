@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { skillSchema } from "@/lib/validations";
 import { checkDatabaseConnection } from "@/lib/db";
 import { prisma } from "@/lib/prisma";
+import { getAuth } from "@clerk/nextjs/server";
 
 // GET Handler
 export async function GET() {
@@ -37,8 +38,13 @@ export async function GET() {
 }
 
 // POST Handler
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const { userId } = getAuth(request);
+
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     // Check database connection first
     const isConnected = await checkDatabaseConnection();
     if (!isConnected) {
@@ -186,8 +192,14 @@ export async function POST(request: Request) {
 
 // DELETE - Delete Skill by ID
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
+    const { userId } = getAuth(request);
+
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 

@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { personalInfoSchema } from '@/lib/validations';
 import { ZodError } from 'zod';
+import { getAuth } from '@clerk/nextjs/server';
 
 export async function GET() {
   try {
@@ -25,8 +26,14 @@ export async function GET() {
   }
 }
 
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
+  //TODO: implement auth validation!
   try {
+    const { userId } = getAuth(request);
+
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     const body = await request.json();
     const validatedData = personalInfoSchema.parse(body);
 
@@ -83,8 +90,14 @@ export async function PUT(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const { userId } = getAuth(request);
+
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    
     const body = await request.json();
     const validatedData = personalInfoSchema.parse(body);
 

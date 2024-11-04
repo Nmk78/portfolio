@@ -3,8 +3,8 @@ export interface Project {
   title: string;
   shortDesc: string;
   description: string;
-  githubLink: string;
-  liveLink: string;
+  githubLink?: string;
+  liveLink?: string;
   images: string[];
   techStack: string[];
   keyFeatures: string[];

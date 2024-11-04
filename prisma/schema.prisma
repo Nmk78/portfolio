@@ -26,8 +26,8 @@ model Project {
   title       String
   shortDesc   String
   description String
-  githubLink  String
-  liveLink    String
+  githubLink  String?
+  liveLink    String?
   images      String[]
   techStack   String[]
   keyFeatures    String[]

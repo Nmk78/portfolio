@@ -6,6 +6,7 @@ import { ClerkProvider, SignedOut, SignInButton } from "@clerk/nextjs";
 import { DataProvider } from "@/context/DataContext";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import { ReactQueryProvider } from "./providers";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -52,16 +53,20 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
-          <DataProvider>
-            <Nav />
-            <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <EdgeStoreProvider>
-            <ReactQueryProvider>{children}</ReactQueryProvider>
-
-            </EdgeStoreProvider>
-          </DataProvider>
+          {/* <DataProvider> */}
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <EdgeStoreProvider>
+            <ReactQueryProvider>
+              <DataProvider>
+                <Nav />
+                {children}
+                <Toaster />
+              </DataProvider>
+            </ReactQueryProvider>
+          </EdgeStoreProvider>
+          {/* </DataProvider> */}
         </body>
       </html>
     </ClerkProvider>

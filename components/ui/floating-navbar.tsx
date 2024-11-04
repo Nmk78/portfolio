@@ -14,6 +14,7 @@ import { SignedIn, SignOutButton, UserButton, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
+import { useData } from "@/context/DataContext";
 
 interface NavItem {
   name: string;
@@ -34,6 +35,8 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
   const { isSignedIn } = useUser();
 
   let previousScroll = 0;
+
+  const { cv, isLoading, error } = useData();
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     if (typeof current === "number") {
@@ -94,8 +97,9 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
   }, [pathname]);
 
   const NavLink = ({ item }: { item: NavItem }) => {
-    const isActive = pathname === item.link || pathname.startsWith(`${item.link}/`);
-  
+    const isActive =
+      pathname === item.link || pathname.startsWith(`${item.link}/`);
+
     return (
       <Link
         href={item.link}
@@ -110,9 +114,7 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
       </Link>
     );
   };
-  
-  
-  
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -149,13 +151,21 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
               </SignedIn>
             ) : (
               <Link
-                href="/cv"
-                className="hidden items-center space-x-2 rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-gray-50 hover:text-neutral-500 dark:text-neutral-50 dark:hover:bg-gray-800 dark:hover:text-neutral-300 sm:flex"
+                href={!isLoading && cv?.url ? cv.url : "#"} // Provide a default value or disable if no URL
+                className={`hidden items-center space-x-2 rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-neutral-600 
+      ${
+        !cv?.url
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:bg-gray-50 hover:text-neutral-500"
+      }
+      dark:text-neutral-50 dark:hover:bg-gray-800 dark:hover:text-neutral-300 sm:flex`}
+                aria-disabled={!cv?.url} // Set aria-disabled for accessibility when no URL
               >
                 <IconFileCv className="h-4 w-4 text-neutral-500 dark:text-white" />
                 <span>Download CV</span>
               </Link>
             )}
+
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="ml-4 flex items-center p-2 text-gray-600 hover:text-gray-900 dark:text-white sm:hidden"

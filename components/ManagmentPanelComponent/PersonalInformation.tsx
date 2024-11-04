@@ -17,27 +17,39 @@ import { useQuery } from "@tanstack/react-query";
 
 import axios from "axios";
 import ContextManager from "./Context";
+import { useData } from "@/context/DataContext";
 
 // const PersonalInformation = ({handlePersonalInfoSubmit, handlePersonalInfoChange}) => {
 const PersonalInformation = () => {
-  const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
-  const { user } = useUser();
+  // const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
+  // const { user } = useUser();
+  // const { personalInfo:data, isLoading, error } = useData();
 
-  const fetchPersonalInfo = async () => {
-    const { data } = await axios.get("/api/info"); // Adjust the API endpoint accordingly
-    return data;
-  };
+  // useEffect(() => {
+  //   if (!error && !isLoading) {
+  //     setPersonalInfo(data.data);
+  //   }
+  // }, [data, isLoading, error]);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["personalInfo"],
-    queryFn: fetchPersonalInfo,
-  });
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null); // Rename to avoid conflict with imported `personalInfo`
+const { user } = useUser();
+const { personalInfo:data, isLoading, error } = useData();
 
-  useEffect(() => {
-    if (!error && !isLoading) {
-      setPersonalInfo(data.data);
-    }
-  }, [data, isLoading, error]);
+useEffect(() => {
+  if (!error && !isLoading && data) {
+    setPersonalInfo(data); // Directly set `personalInfo` from useData
+  }
+}, [personalInfo, isLoading, error]);
+
+  // const fetchPersonalInfo = async () => {
+  //   const { data } = await axios.get("/api/info"); // Adjust the API endpoint accordingly
+  //   return data;
+  // };
+
+  // const { data, isLoading, error } = useQuery({
+  //   queryKey: ["personalInfo"],
+  //   queryFn: fetchPersonalInfo,
+  // });
 
   const handlePersonalInfoChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -62,6 +74,8 @@ const PersonalInformation = () => {
       }
     }
   };
+  console.log("🚀 ~ PersonalInformation ~ personalInfo:", personalInfo)
+
   return (
     <Card className="md:col-span-2 md:row-span-2 border rounded-none shadow-none">
       <CardHeader>

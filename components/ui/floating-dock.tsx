@@ -75,7 +75,7 @@ const FloatingDockMobile = ({
             layoutId="nav"
             className=" mb-2 inset-x-0 flex flex-row flex-wrap gap-2"
           >
-            {items.map((item, idx) => (
+            {items?.map((item, idx) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: -30 }}

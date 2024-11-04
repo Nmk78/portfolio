@@ -1,26 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, Plus, Briefcase, ExternalLink, Pencil, X } from "lucide-react";
+import { Plus, Briefcase, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import Image from "next/image";
+
 import { Project as ProjectType } from "@/lib/types";
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
-import { MultiImageDropzone } from "@/lib/EdgeMultiImageUploadZone";
+import { FileState, MultiImageDropzone } from "@/lib/EdgeMultiImageUploadZone";
 import { useEdgeStore } from "@/lib/edgestore";
-import { FileState } from "@/lib/EdgeMultiFileUploadZone";
 import {
   Drawer,
   DrawerContent,
@@ -32,10 +22,15 @@ import {
 import DynamicIcons from "../DynamicIcon";
 import { ScrollArea } from "../ui/scroll-area";
 
-import ProjectCard from "@/components/ProjectCard"
+import ProjectCard from "@/components/ProjectCard";
+import { useData } from "@/context/DataContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "../ui/use-toast";
 
 const Projects = () => {
   const [projects, setProjects] = useState<ProjectType[]>([]); // For API data
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const queryClient = useQueryClient();
 
   //For local input states
   const [title, setTitle] = useState<string>("");
@@ -47,9 +42,9 @@ const Projects = () => {
   const [liveLink, setLiveLink] = useState<string>("");
   const [fileStates, setFileStates] = useState<FileState[]>([]);
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
-
-  ////////////
   const [newTechItem, setNewTechItem] = useState<string>("");
+  const [newFeature, setNewFeature] = useState<string>("");
+  ////////////
 
   const handleAddTechItem = () => {
     if (newTechItem.trim() !== "" && !techStack.includes(newTechItem.trim())) {
@@ -57,8 +52,6 @@ const Projects = () => {
       setNewTechItem("");
     }
   };
-
-  const [newFeature, setNewFeature] = useState<string>("");
 
   const handleRemoveTechItem = (tech: string) => {
     setTechStack(techStack.filter((item) => item !== tech));
@@ -78,22 +71,13 @@ const Projects = () => {
   ////////////
   const { edgestore } = useEdgeStore();
 
-  const fetchProjects = async () => {
-    const { data } = await axios.get("/api/projects");
-    setProjects(data?.data)
-    return data;
-  };
+  const { projects: data, isLoading, error } = useData();
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["projects"],
-    queryFn: fetchProjects,
-  });
-
-  // useEffect(() => {
-  //   if (!error && !isLoading) {
-  //     setProjects(data.data);
-  //   }
-  // }, [data, isLoading, error]);
+  useEffect(() => {
+    if (!error && !isLoading && data) {
+      setProjects(data);
+    }
+  }, [projects, isLoading, error]);
 
   const handleFilesChange = (newFiles: FileState[]) => {
     setFileStates(newFiles); // Ensure this updates the state correctly
@@ -137,31 +121,6 @@ const Projects = () => {
     return urls;
   };
 
-  // const addProject = async (newProject: {
-  //   name: string;
-  //   description: string;
-  //   link: string;
-  //   images: string[]; // Added to match the uploaded images
-  // }) => {
-  //   try {
-  //     const response = await fetch("/api/projects", {
-  //       method: "POST",
-  //       body: JSON.stringify(newProject),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-  //     const addedProject = await response.json();
-  //     setProjects((prev) => [...prev, addedProject]);
-
-  //     // Clear uploaded image URLs and file states after adding the project
-  //     setUploadedImageUrls([]);
-  //     setFileStates([]);
-  //   } catch (error) {
-  //     console.error("Error adding project:", error);
-  //   }
-  // };
-
   const addProject = async (newProject: {
     title: string;
     shortDesc: string;
@@ -203,10 +162,6 @@ const Projects = () => {
   const handleAddProject = async () => {
     const imageUrls = await handleUploadImages(fileStates);
 
-    // Prepare the tech stack and features (you can also use input fields for these)
-    const tech_stack = techStack;
-    const features = keyFeatures; // Gather from input or state
-
     // Call addProject with the gathered data
     addProject({
       title,
@@ -218,6 +173,41 @@ const Projects = () => {
       techStack,
       keyFeatures,
     });
+  };
+
+  const mutation = useMutation({
+    mutationFn: async () => handleAddProject(), // Mutation function
+
+    onSuccess: async () => {
+      toast({ description: "Project added successfully!" });
+
+      // Invalidate and refetch the updated project data
+      await queryClient.invalidateQueries({
+        queryKey: ["projects"],
+      });
+
+      setDrawerOpen(false);
+    },
+
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        description: "Failed to add project. Please try again.",
+      });
+      console.error("Error adding project:", error);
+    },
+  });
+
+  const handleAdd = async () => {
+    // e.preventDefault(); // To prevent default form submission
+    console.log("Handle update fn run");
+
+    try {
+      await mutation.mutateAsync(); // Ensure this is correctly defined in the context
+      console.log("Project successfully updated!");
+    } catch (error) {
+      console.error("Error during project update:", error);
+    }
   };
 
   const updateProject = async (
@@ -270,7 +260,7 @@ const Projects = () => {
             Projects
           </CardTitle>
         </CardHeader>
-        <Drawer>
+        <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
           <DrawerTrigger asChild>
             <Button
               variant="outline"
@@ -430,7 +420,7 @@ const Projects = () => {
               <Button
                 type="button"
                 className="w-full bg-red-600 text-white hover:bg-red-700"
-                onClick={handleAddProject}
+                onClick={handleAdd}
               >
                 Add Project
               </Button>
@@ -439,10 +429,31 @@ const Projects = () => {
         </Drawer>
       </div>
       <CardContent>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          {projects.map((project) => (
-            <ProjectCard project={project} updateFn={updateProject} removeFn={removeProject}/>
-          ))}
+          {/* Show skeletons when loading */}
+          {isLoading &&
+            [...Array(3)].map((_, index) => (
+              <div
+                className="animate-pulse bg-gray-200 rounded-md h-40 md:h-60 aspect-video w-full"
+                key={index}
+              ></div>
+            ))}
+
+          {/* Show project cards when not loading and projects exist */}
+          {!isLoading &&
+            projects.length > 0 &&
+            projects.map((project, index) => (
+              <ProjectCard
+              key={index}
+                project={project}
+              />
+            ))}
+
+          {/* If no projects and not loading, display a message */}
+          {!isLoading && projects.length === 0 && (
+            <p className="text-center text-gray-500">No projects available.</p>
+          )}
         </div>
       </CardContent>
     </Card>

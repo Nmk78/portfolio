@@ -61,11 +61,23 @@ export const theme = {
         '0%': { transform: 'translateY(0)' },
         '100%': { transform: 'translateY(100%)' },
       },
+      spotlight: {
+        "0%": {
+          opacity: 0,
+          transform: "translate(-72%, -62%) scale(0.5)",
+        },
+        "100%": {
+          opacity: 1,
+          transform: "translate(-50%,-40%) scale(1)",
+        },
+      },
     },
     animation: {
       slideUp: 'slideUp 1s ease forwards',
       slideDown: 'slideDown 1s ease forwards',
+      spotlight: "spotlight 2s ease .75s 1 forwards",
     },
+
   },
 };
 

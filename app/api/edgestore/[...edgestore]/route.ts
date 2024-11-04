@@ -5,54 +5,44 @@ import {
   createEdgeStoreNextHandler,
 } from "@edgestore/server/adapters/next/app";
 
+
 type Context = {
   userId: string;
   userName: string | null;
 };
 
 async function createContext({ req }: CreateContextOptions): Promise<Context> {
-  // Use Clerk's getAuth to extract user information from the request
-  const { userId } = getAuth(req);
+  try {
+    // Use Clerk's getAuth to extract user information from the request
+    const { userId } = getAuth(req);
 
-  // Define user role and username
-  // let userRole: "admin" | "user" | null = null;
-  let userName: string | null = null;
+    let userName: string | null = null;
 
-  if (userId) {
-    // Fetch user details using Clerk's API
-    const user = await clerkClient().users.getUser(userId);
+    if (userId) {
+      // Fetch user details using Clerk's API
+      const user = await clerkClient().users.getUser(userId);
 
-    userName = user.username || null; // Adjust based on your user model
+      // Ensure userName is fetched from Clerk, leave it as null if not found
+      userName = user.username || null;
+    }
+
+    // Ensure both userId and userName are valid before proceeding
+    if (!userId || !userName) {
+      throw new Error("Authentication error: Missing userId or username.");
+    }
+
+    return {
+      userId,
+      userName,
+    };
+  } catch (error) {
+    // Gracefully handle the error and return a response, preventing server crash
+    console.error("Context creation failed:", error);
+    throw new Error("Unauthorized access or missing credentials."); // or customize response
   }
-
-  return {
-    userId: userId || "", // Provide a default value if userId is undefined
-    userName,
-  };
 }
 
 const es = initEdgeStore.context<Context>().create();
-/**
- * This is the main router for the Edge Store buckets.
- */
-// const edgeStoreRouter = es.router({
-//   publicFiles: es
-//     .fileBucket()
-//     .path((ctx) => [
-//       {
-//         cv: () => "naymyokhant_cv", // Static path as part of a function
-//       },
-//     ])
-//     // .path(({}) => [
-//     //   {
-//     //     cv: () => {
-//     //       return "naymyokhant_cv";
-//     //     },
-//     //   },
-//     // ])
-//     .metadata(({}) => ({
-//       metadata: "naymyokhant_developer_cv",
-//     })),
 
 const edgeStoreRouter = es.router({
   publicFiles: es
@@ -63,12 +53,24 @@ const edgeStoreRouter = es.router({
     .metadata(({ ctx, input }) => ({
       name: ctx.userName,
     })),
+  // .beforeDelete(({ ctx, fileInfo }) => {
+  //   console.log("beforeDelete", ctx, fileInfo);
+  //   return true; // allow delete
+  // })
 
-
-  publicImages: es.fileBucket({
-    maxSize: 1024 * 1024 * 5, // 5MB
-    accept: ["image/*"],
-  }),
+  publicImages: es
+    .fileBucket({
+      maxSize: 1024 * 1024 * 5, // 5MB
+      accept: ["image/*"],
+    })
+    .beforeUpload(({ ctx, input, fileInfo }) => {
+      console.log("beforeUpload", ctx, input, fileInfo);
+      return true; // allow upload
+    })
+    .beforeDelete(({ ctx, fileInfo }) => {
+      console.log("beforeDelete", ctx, fileInfo);
+      return true; // allow delete
+    }),
 });
 const handler = createEdgeStoreNextHandler({
   router: edgeStoreRouter,

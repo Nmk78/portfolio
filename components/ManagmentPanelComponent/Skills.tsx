@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
 import { delay } from "framer-motion";
+import { useData } from "@/context/DataContext";
 
 const Skills = () => {
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -22,17 +23,25 @@ const Skills = () => {
     return data;
   };
 
-  const { data, isLoading, error } = useQuery({
+  // const { data, isLoading, error } = useQuery({
 
-    queryKey: ["skills"],
-    queryFn: fetchSkills,
-  });
+  //   queryKey: ["skills"],
+  //   queryFn: fetchSkills,
+  // });
 
-  useEffect(() => {
-    if (!error && !isLoading) {
-      setSkills(data.data);
-    }
-  }, [data, isLoading, error]);
+  // useEffect(() => {
+  //   if (!error && !isLoading) {
+  //     setSkills(data.data);
+  //   }
+  // }, [data, isLoading, error]);
+
+  const { skills:data, isLoading, error } = useData();
+
+useEffect(() => {
+  if (!error && !isLoading && data) {
+    setSkills(data); // Directly set `personalInfo` from useData
+  }
+}, [skills, isLoading, error]);
 
   const addSkill = async (newSkill: string) => {
     try {
@@ -112,7 +121,7 @@ const Skills = () => {
               ></Badge>
             </>
           )}
-          {skills.length > 0 && skills.map((skill) => (
+          {skills?.length > 0 && skills.map((skill) => (
             <Badge
               key={skill?.id}
               variant="secondary"
