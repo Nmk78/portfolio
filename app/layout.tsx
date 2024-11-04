@@ -19,7 +19,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-let baseUrl = process.env.url || "http://localhost:3000";
+const baseUrl = process.env.url || "http://localhost:3000";
 
 
 export const metadata: Metadata = {
