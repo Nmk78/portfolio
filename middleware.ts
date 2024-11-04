@@ -33,7 +33,7 @@ export default clerkMiddleware((auth, request) => {
     } catch (error) {
       // Redirect to the login page or handle it according to your needs
       console.error('Authentication failed:', error);
-      return NextResponse.redirect(new URL("/login", request.url)); // Adjust to your login page
+      return NextResponse.redirect(new URL("/auth/signin", request.url)); // Adjust to your login page
     }
   }
 
