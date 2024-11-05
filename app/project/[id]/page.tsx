@@ -82,7 +82,7 @@
 
 import { ProjectDetails } from "@/components/ProjectDetails";
 import { PageProps } from "@/lib/types";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 import React from "react";
 
 // Function to fetch project data by ID
