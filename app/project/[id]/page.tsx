@@ -149,12 +149,13 @@ const Page = async ({ params }: PageProps) => {
 
   // Fetch the project using the helper function
   const project = await getProject(params.id);
+  console.log("🚀 ~ Page ~ project:", project)
 
   // Handle the case where the project is not found
-  if (!project) {
-    redirect("/not-found");
-    return null;
-  }
+  // if (!project) {
+  //   redirect("/not-found");
+  //   return null;
+  // }
 
   // Render the ProjectDetails component with the fetched data
   return <ProjectDetails passedProject={project} />;
