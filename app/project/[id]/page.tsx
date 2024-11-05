@@ -1,4 +1,3 @@
-
 // import { ProjectDetails } from "@/components/ProjectDetails";
 // import { PageProps } from "@/lib/types";
 // import axios from "axios";
@@ -79,18 +78,16 @@
 
 // export default Page;
 
-
 import { ProjectDetails } from "@/components/ProjectDetails";
 import { PageProps } from "@/lib/types";
 // import { redirect } from "next/navigation";
 import React from "react";
+  const baseUrl = process.env.url || "http://localhost:3000";
 
 // Function to fetch project data by ID
 const getProject = async (id: string) => {
   try {
-    const response = await fetch(
-      `/api/projects?id=${id}`
-    );
+    const response = await fetch(`${baseUrl}/api/projects?id=${id}`);
     const data = await response.json();
     return data.data;
   } catch (error) {
@@ -149,7 +146,7 @@ const Page = async ({ params }: PageProps) => {
 
   // Fetch the project using the helper function
   const project = await getProject(params.id);
-  console.log("🚀 ~ Page ~ project:", project)
+  console.log("🚀 ~ Page ~ project:", project);
 
   // Handle the case where the project is not found
   // if (!project) {
