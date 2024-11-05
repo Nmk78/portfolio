@@ -51,7 +51,9 @@ interface ProjectDetailsProps {
   passedProject: Project; // Use the Project type for the project prop
 }
 
-export const ProjectDetails: React.FC<ProjectDetailsProps> = ({ passedProject }) => {
+export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
+  passedProject,
+}) => {
   const [project, setProject] = useState<Project | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
@@ -163,8 +165,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({ passedProject })
     console.log("🚀 ~ fetchProject ~ response:", response);
     return response.data.data;
   };
-
-  const { isLoading } = useQuery({
+  useQuery({
     queryKey: ["project", id],
     queryFn: () => {
       fetchProject(id);
@@ -173,9 +174,9 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({ passedProject })
 
   useEffect(() => {
     if (passedProject == null) return;
-    console.log("🚀 ~ useEffect ~ passedProject:", passedProject)
+    console.log("🚀 ~ useEffect ~ passedProject:", passedProject);
 
-    setProject(passedProject)
+    setProject(passedProject);
     setTitle(passedProject.title || "");
     setShortDesc(passedProject.shortDesc || "");
     setKeyFeatures(passedProject.keyFeatures || []);
@@ -340,7 +341,6 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({ passedProject })
       console.error("Error during project update:", error);
     }
   };
-
 
   if (!passedProject || !project) {
     return (
