@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
-import { ClerkProvider, SignedOut, SignInButton } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { DataProvider } from "@/context/DataContext";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import { ReactQueryProvider } from "./providers";
