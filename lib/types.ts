@@ -37,3 +37,11 @@ export interface Context {
   id?: string;
   content: string;
 }
+
+
+
+export interface PageProps {
+  params: {
+    id: string;
+  };
+}

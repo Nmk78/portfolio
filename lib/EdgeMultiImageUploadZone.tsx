@@ -17,11 +17,18 @@ const variants = {
   reject: "border border-red-700 bg-red-700 bg-opacity-10",
 };
 
+// export type FileState = {
+//   [x: string]: string;
+//   file: File;
+//   key: string; // used to identify the file in the progress callback
+//   progress: "PENDING" | "COMPLETE" | "ERROR" | number;
+// };
+
 export type FileState = {
-  [x: string]: string;
   file: File;
   key: string; // used to identify the file in the progress callback
   progress: "PENDING" | "COMPLETE" | "ERROR" | number;
+  abortController?: AbortController;
 };
 
 type InputProps = {

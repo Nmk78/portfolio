@@ -46,8 +46,12 @@ import { ScrollArea } from "./ui/scroll-area";
 import { toast } from "./ui/use-toast";
 import { useEdgeStore } from "@/lib/edgestore";
 import CustomAlertDialog from "./ui/CustomAlertDialog";
+import { useAuth } from "@clerk/nextjs";
+interface ProjectDetailsProps {
+  passedProject: Project; // Use the Project type for the project prop
+}
 
-export default function ProjectDetails() {
+export const ProjectDetails: React.FC<ProjectDetailsProps> = ({ passedProject }) => {
   const [project, setProject] = useState<Project | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
@@ -55,6 +59,7 @@ export default function ProjectDetails() {
   const { id } = useParams(); // Extract the 'id' from the URL parameters
   const queryClient = useQueryClient();
   const { edgestore } = useEdgeStore();
+  const { userId } = useAuth(); // Get user information
 
   const [title, setTitle] = useState<string>("");
   const [shortDesc, setShortDesc] = useState<string>("");
@@ -86,18 +91,6 @@ export default function ProjectDetails() {
 
     return useMutation({
       mutationFn: async ({ project }: any) => {
-        // First delete the images from EdgeStore if they exist
-        // if (project && project.images && project.images?.length > 0) {
-        //   await Promise.all(
-        //     project.images.map(async (url:any) => {
-        //       try {
-        //         await edgestore.publicImages.delete({ url:url }); // Assuming you have a delete method
-        //       } catch (error) {
-        //         console.error("Error deleting image:", error);
-        //       }
-        //     })
-        //   );
-        // }
         if (project && project.images && project.images.length > 0) {
           console.log("Attempting to delete images:", project.images);
 
@@ -179,18 +172,20 @@ export default function ProjectDetails() {
   });
 
   useEffect(() => {
-    if (project == null) return;
+    if (passedProject == null) return;
+    console.log("🚀 ~ useEffect ~ passedProject:", passedProject)
 
-    setTitle(project.title || "");
-    setShortDesc(project.shortDesc || "");
-    setKeyFeatures(project.keyFeatures || []);
-    setDescription(project.description || "");
-    setGithubLink(project.githubLink || "");
-    setTechStack(project.techStack || []);
-    setLiveLink(project.liveLink || "");
-    setUploadedImageUrls(project.images || []);
+    setProject(passedProject)
+    setTitle(passedProject.title || "");
+    setShortDesc(passedProject.shortDesc || "");
+    setKeyFeatures(passedProject.keyFeatures || []);
+    setDescription(passedProject.description || "");
+    setGithubLink(passedProject.githubLink || "");
+    setTechStack(passedProject.techStack || []);
+    setLiveLink(passedProject.liveLink || "");
+    setUploadedImageUrls(passedProject.images || []);
     setFileStates([]); // Reset file states for new uploads if any
-  }, [project]);
+  }, [passedProject]);
 
   function updateFileProgress(key: string, progress: FileState["progress"]) {
     setFileStates((fileStates) => {
@@ -222,7 +217,7 @@ export default function ProjectDetails() {
           });
           urls.push(res.url); // Assuming res contains the URL of the uploaded image
         } catch (err) {
-          console.log("🚀 ~ addedFiles.map ~ err:", err)
+          console.log("🚀 ~ addedFiles.map ~ err:", err);
           updateFileProgress(addedFileState.key, "ERROR");
         }
       })
@@ -253,9 +248,16 @@ export default function ProjectDetails() {
       }
 
       // Step 3: Upload new images
-      const newImages = fileStates.filter(
-        (file) => !uploadedImageUrls.includes(file?.url)
-      );
+      // const newImages = fileStates.filter(
+      //   (file) => !uploadedImageUrls.includes(file.url)
+      // );
+
+      const newImages = fileStates.filter((fileState) => {
+        // Create a URL for the file object
+        const fileUrl = URL.createObjectURL(fileState.file);
+        return !uploadedImageUrls.includes(fileUrl);
+      });
+
       const newImageUrls = await handleUploadImages(newImages);
 
       // Step 4: Prepare updated project data
@@ -339,13 +341,8 @@ export default function ProjectDetails() {
     }
   };
 
-  /// For Delete
 
-  // Function to delete the project by ID in MongoDB
-
-  // Mutation function
-
-  if (isLoading || !project) {
+  if (!passedProject || !project) {
     return (
       <div className="container mx-auto px-4 mt-12 py-12">
         {/* Skeleton loader for title */}
@@ -406,9 +403,7 @@ export default function ProjectDetails() {
     <div className="container mx-auto px-4 mt-12 py-12">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">{project?.title}</h1>
-        <p className="text-xl text-gray-900 mb-4">
-          {project?.shortDesc}
-        </p>
+        <p className="text-xl text-gray-900 mb-4">{project?.shortDesc}</p>
         <p className="text-md text-balance text-gray-900 mb-4">
           {project?.description}
         </p>
@@ -445,7 +440,7 @@ export default function ProjectDetails() {
           </a>
           {/* Edit Button */}
 
-          {project && (
+          {project && userId && (
             <>
               <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
                 <DrawerTrigger asChild>
@@ -702,7 +697,6 @@ export default function ProjectDetails() {
               />
             </>
           )}
-
         </div>
       </div>
 
@@ -713,7 +707,7 @@ export default function ProjectDetails() {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {keyFeatures?.map((feature, index) => (
+              {project?.keyFeatures?.map((feature, index) => (
                 <li key={index} className="flex items-start">
                   <ChevronRight className="w-4 h-4 mr-2 text-primary flex-shrink-0 mt-1" />
                   <span>{feature}</span>
@@ -823,4 +817,4 @@ export default function ProjectDetails() {
       </AnimatePresence>
     </div>
   );
-}
+};

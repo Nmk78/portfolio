@@ -151,18 +151,6 @@ export const Header: React.FC<HeaderProps> = ({ personalInfo, skills }) => {
 
   const headerRef = useRef<HTMLDivElement>(null);
 
-  // useEffect(() => {
-  //   const fetchDataIfNeeded = async () => {
-  //     if (!info) {
-  //       const { data } = await fetchData(
-  //         "http://localhost:3000/api/info",
-  //         setInfo
-  //       );
-  //     }
-  //   };
-
-  //   fetchDataIfNeeded();
-  // }, [info]); // Re-run when info changes
 
   return (
     <div
