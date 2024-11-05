@@ -32,7 +32,6 @@ export const metadata: Metadata = {
     siteName: "Nay Myo Khant",
     images: [
       {
-        //TODO to change url
         // TODO to change cover image cuz it has ugly download cv text
         url: `${baseUrl}/images/cover.jpg`, // Replace with your image URL
         width: 800,
@@ -40,9 +39,33 @@ export const metadata: Metadata = {
         alt: "Nay Myo Khant - Web Developer",
       },
     ],
+    
     locale: "en_US",
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nay Myo Khant - Computer Studied Student & Web Developer",
+    description: "Personal portfolio of a computerphile student.",
+    images: [
+      {
+        url: `${baseUrl}/images/cover.jpg`, // Replace with your image URL
+        alt: "Nay Myo Khant - Web Developer",
+      },
+    ],
+  },
+  keywords: [
+    "Nay Myo Khant",
+    "Nay Myo Thura Kyaw",
+    "Web Developer",
+    "Computer Science Student",
+    "Next.js",
+    "Vercel",
+    "Portfolio",
+    "UCS Myeik",
+    "ERP",
+    "Technology Enthusiast"
+  ].join(", "),
 };
 
 export default function RootLayout({

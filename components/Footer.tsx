@@ -6,12 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
 import { navItems } from './Nav'
 
-// const navItems = [
-//   { name: "Home", link: "/" },
-//   { name: "Projects", link: "/projects" },
-//   { name: "Contact", link: "/contact" },
-//   { name: "Management", link: "/management" },
-// ];
 
 const socialLinks = [
   { name: "GitHub", link: "https://github.com/Nmk78" },

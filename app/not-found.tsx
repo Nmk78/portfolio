@@ -1,21 +1,10 @@
-"use client";
-
-import { useState } from "react";
+// app/404.tsx
+"use client"; // This line makes the component a client component
 import { motion } from "framer-motion";
-import { Home, Search, RefreshCcw } from "lucide-react";
-import { navItems } from "@/components/Nav";
+import { IconHome, IconCode, IconMessage } from "@tabler/icons-react"; // Adjust import based on where your icons are
 
-export default function Custom404() {
-  const [isSpinning, setIsSpinning] = useState(false);
 
-  const spinAnimation = {
-    rotate: isSpinning ? 360 : 0,
-    transition: {
-      duration: 1,
-      ease: "easeInOut",
-    },
-  };
-
+const Custom404 = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
       <motion.div
@@ -35,32 +24,75 @@ export default function Custom404() {
       </motion.div>
 
       <div className="flex flex-wrap justify-center gap-6 mb-12">
-        {navItems.map((item, index) => (
-          <motion.a
-            key={index}
-            href={item.link}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex flex-col items-center px-6 py-3 bg-red-100 text-red-700 font-semibold hover:bg-red-300 transition-colors"
+        {/* Hard-coded navigation items */}
+        <motion.a
+          href="/"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center px-6 py-3 bg-red-100 text-red-700 font-semibold hover:bg-red-300 transition-colors"
+        >
+          <motion.div
+            className="p-2"
+            whileHover={{ scale: 2, rotate: 10, color: "#d33" }}
+            transition={{ type: "spring", stiffness: 300 }}
           >
-            <motion.div
-              className="p-2"
-              whileHover={{ scale: 2, rotate: 10, color: "#d33" }} // Slight rotation and scale on hover
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              {item.icon}
-            </motion.div>
+            <IconHome className="h-4 w-4 text-neutral-500 dark:text-white" />
+          </motion.div>
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            whileHover={{ scale: 1.1 }}
+          >
+            Home
+          </motion.span>
+        </motion.a>
 
-            <motion.span
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-              whileHover={{ scale: 1.1 }}
-            >
-              {item.name}
-            </motion.span>
-          </motion.a>
-        ))}
+        <motion.a
+          href="/project"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center px-6 py-3 bg-red-100 text-red-700 font-semibold hover:bg-red-300 transition-colors"
+        >
+          <motion.div
+            className="p-2"
+            whileHover={{ scale: 2, rotate: 10, color: "#d33" }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <IconCode className="h-4 w-4 text-neutral-500 dark:text-white" />
+          </motion.div>
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            whileHover={{ scale: 1.1 }}
+          >
+            Projects
+          </motion.span>
+        </motion.a>
+
+        <motion.a
+          href="/contact"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex flex-col items-center px-6 py-3 bg-red-100 text-red-700 font-semibold hover:bg-red-300 transition-colors"
+        >
+          <motion.div
+            className="p-2"
+            whileHover={{ scale: 2, rotate: 10, color: "#d33" }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <IconMessage className="h-4 w-4 text-neutral-500 dark:text-white" />
+          </motion.div>
+          <motion.span
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+            whileHover={{ scale: 1.1 }}
+          >
+            Contact
+          </motion.span>
+        </motion.a>
       </div>
 
       <motion.p
@@ -73,4 +105,6 @@ export default function Custom404() {
       </motion.p>
     </div>
   );
-}
+};
+
+export default Custom404;
