@@ -18,7 +18,7 @@ const Custom404 = () => {
           Page Not Found
         </h2>
         <p className="text-xl text-gray-600 mb-12 max-w-md mx-auto">
-          Oops! The page you're looking for seems to have vanished into the
+          Oops! The page you&apos;re looking for seems to have vanished into the
           digital abyss.
         </p>
       </motion.div>
