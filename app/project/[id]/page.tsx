@@ -89,7 +89,7 @@ import React from "react";
 const getProject = async (id: string) => {
   try {
     const response = await fetch(
-      `http://localhost:3000/api/projects?id=${id}`
+      `/api/projects?id=${id}`
     );
     const data = await response.json();
     return data.data;
