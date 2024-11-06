@@ -184,6 +184,10 @@ const Projects = () => {
       await queryClient.invalidateQueries({
         queryKey: ["projects"],
       });
+  
+      // Optionally, you can directly refetch if invalidation is not enough
+      await queryClient.refetchQueries({ queryKey: ["projects"] });
+  
 
       setDrawerOpen(false);
     },

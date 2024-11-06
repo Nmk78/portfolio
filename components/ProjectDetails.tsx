@@ -744,7 +744,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                           alt={project.title}
                           width={800} // Adjust as per your desired width
                           height={450} // Adjust as per your desired height or aspect ratio
-                          className="object-cover w-full h-full"
+                          className=" object-contain w-auto h-full"
                           priority
                         />
                       </CardContent>

@@ -33,8 +33,8 @@ export default function CustomAlertDialog({
 
   const { mutate: deleteProject } = useDeleteProjectMutation();
 
-  const handleConfirm = () => {
-    deleteProject({ project });
+  const handleConfirm = async () => {
+    await deleteProject({ project });
     closeDialog();
   };
 
