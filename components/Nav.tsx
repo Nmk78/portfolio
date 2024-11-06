@@ -30,7 +30,7 @@ export const navItems = [
 export function Nav() {
 
   return (
-    <nav className="relative flex w-full z-50">
+    <nav className="relative flex container w-full z-50">
       <FloatingNav navItems={navItems} />
     </nav>
   );

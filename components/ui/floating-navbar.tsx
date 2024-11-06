@@ -147,7 +147,7 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
           className
         )}
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-1">
           {/* Column 1: Logo */}
           <div className="flex-shrink-0">
             <Logo />

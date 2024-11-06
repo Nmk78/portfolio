@@ -78,7 +78,7 @@ export default function ProjectShowcase({
 
 
   return (
-    <section className="container mx-auto px-4 py-12">
+    <section className="container max-w-7xl mx-auto px-4 py-12">
       {/* <motion.h2
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -115,8 +115,11 @@ export default function ProjectShowcase({
                       <Image
                         src={project.images[0]}
                         alt={project.title}
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+
+                        priority
+                        quality={75}
                         className="transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (

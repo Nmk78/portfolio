@@ -23,18 +23,18 @@ export const HeroParallax = () => {
     const firstRow: Project[] = [];
     const secondRow: Project[] = [];
     const thirdRow: Project[] = [];
-  
+
     // Return early if no projects or projects is not an array
     if (!Array.isArray(projects) || projects.length === 0) {
       return { firstRow, secondRow, thirdRow };
     }
-  
+
     // Determine row size based on number of projects
     const rowSize =
       projects.length > 9
         ? Math.ceil(projects.length / 3)
         : Math.ceil(projects.length / 2);
-  
+
     // Split projects into rows
     if (projects.length > 9) {
       firstRow.push(...projects.slice(0, rowSize));
@@ -44,10 +44,9 @@ export const HeroParallax = () => {
       firstRow.push(...projects.slice(0, rowSize));
       secondRow.push(...projects.slice(rowSize));
     }
-  
+
     return { firstRow, secondRow, thirdRow };
   };
-  
 
   // Usage
 
@@ -151,7 +150,6 @@ export const Header: React.FC<HeaderProps> = ({ personalInfo, skills }) => {
 
   const headerRef = useRef<HTMLDivElement>(null);
 
-
   return (
     <div
       ref={headerRef}
@@ -205,74 +203,10 @@ export const Header: React.FC<HeaderProps> = ({ personalInfo, skills }) => {
     </div>
   );
 };
-
-// export const ProductCard = ({
-//   product,
-//   translate,
-// }: {
-//   product: {
-//     title: string;
-//     link: string;
-//     route: string;
-//     thumbnail: string;
-//   };
-//   translate: MotionValue<number>;
-// }) => {
-//   const [hoverY, setHoverY] = useState(-40); // Default to desktop value
-
-//   useEffect(() => {
-//     // Detect screen size and adjust hoverY value for mobile
-//     const handleResize = () => {
-//       const isMobile = window.innerWidth <= 768; // 768px as mobile breakpoint
-//       setHoverY(isMobile ? 10 : -40);
-//     };
-
-//     // Initial check
-//     handleResize();
-
-//     // Listen for window resize events
-//     window.addEventListener("resize", handleResize);
-
-//     // Cleanup the event listener on unmount
-//     return () => window.removeEventListener("resize", handleResize);
-//   }, []);
-
-//   return (
-//     <motion.div
-//       style={{
-//         x: translate,
-//       }}
-//       whileHover={{
-//         y: hoverY,
-//       }}
-//       key={product.title}
-//       className="group/product h-96 w-[30rem] relative flex-shrink-0"
-//     >
-//       <Link
-//         href={`project/${product.route}`}
-//         className="block group-hover/product:shadow-2xl"
-//       >
-//         <Image
-//           src={product.thumbnail}
-//           height="600"
-//           width="600"
-//           className="object-cover object-left-top absolute h-full w-full inset-0"
-//           alt={product.title}
-//         />
-//       </Link>
-//       <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-80 bg-black pointer-events-none"></div>
-//       <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white">
-//         {product.title}
-//       </h2>
-//     </motion.div>
-//   );
-// };
-
 interface ProjectCardProps {
   project: Project; // Updated to use the Project interface
   translate: MotionValue<number>;
 }
-
 export const ProjectCard = ({ project, translate }: ProjectCardProps) => {
   const [hoverY, setHoverY] = useState(-40); // Default to desktop value
 
@@ -308,13 +242,16 @@ export const ProjectCard = ({ project, translate }: ProjectCardProps) => {
         href={`project/${project.id}`}
         className="block group-hover/product:shadow-2xl"
       >
-        <Image
-          src={project.images[0]} // Use the first image from the images array as thumbnail
-          fill
-          loading="lazy"
-          className="object-cover object-left-top absolute h-full w-full inset-0"
-          alt={project.title}
-        />
+        <div className="relative h-96 w-full">
+          <Image
+            src={project.images[0]} // Use the first image from the images array as thumbnail
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Responsive image sizes
+            priority // Helps with LCP
+            alt={project.title}
+            className="absolute inset-0"
+          />
+        </div>
       </Link>
       <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-80 bg-black pointer-events-none"></div>
       <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white">
@@ -326,3 +263,62 @@ export const ProjectCard = ({ project, translate }: ProjectCardProps) => {
     </motion.div>
   );
 };
+
+// export const ProjectCard = ({ project, translate }: ProjectCardProps) => {
+//   const [hoverY, setHoverY] = useState(-40); // Default to desktop value
+
+//   useEffect(() => {
+//     // Detect screen size and adjust hoverY value for mobile
+//     const handleResize = () => {
+//       const isMobile = window.innerWidth <= 768; // 768px as mobile breakpoint
+//       setHoverY(isMobile ? 10 : -40);
+//     };
+
+//     // Initial check
+//     handleResize();
+
+//     // Listen for window resize events
+//     window.addEventListener("resize", handleResize);
+
+//     // Cleanup the event listener on unmount
+//     return () => window.removeEventListener("resize", handleResize);
+//   }, []);
+
+//   return (
+//     <motion.div
+//       style={{
+//         x: translate,
+//       }}
+//       whileHover={{
+//         y: hoverY,
+//       }}
+//       key={project.title}
+//       className="group/product h-96 w-[30rem] relative flex-shrink-0"
+//     >
+//       <Link
+//         href={`project/${project.id}`}
+//         className="block group-hover/product:shadow-2xl"
+//       >
+//         <div className="relative min-h-96 h-auto w-full">
+//           {" "}
+//           {/* Ensure the parent div is relative and defines the size */}
+//           <Image
+//             src={project.images[0]} // Use the first image from the images array as thumbnail
+//             layout="fill" // Image will fill the container
+//             objectFit="cover" // Cover ensures the image maintains its aspect ratio
+//             priority // Prioritize loading this image for LCP
+//             alt={project.title}
+//             className="object-cover object-left-top absolute inset-0"
+//           />
+//         </div>
+//       </Link>
+//       <div className="absolute inset-0 h-full w-full opacity-0 group-hover/product:opacity-80 bg-black pointer-events-none"></div>
+//       <h2 className="absolute bottom-4 left-4 opacity-0 group-hover/product:opacity-100 text-white">
+//         {project.title}
+//       </h2>
+//       <p className="absolute bottom-16 left-4 opacity-0 group-hover/product:opacity-100 text-white">
+//         {project.shortDesc} {/* Displaying the short description */}
+//       </p>
+//     </motion.div>
+//   );
+// };

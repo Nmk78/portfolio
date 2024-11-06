@@ -400,7 +400,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   }
 
   return (
-    <div className="container mx-auto px-4 mt-12 py-12">
+    <div className="container max-w-7xl mx-auto px-4 mt-12 py-12">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">{project?.title}</h1>
         <p className="text-xl text-gray-900 mb-4">{project?.shortDesc}</p>
@@ -421,23 +421,25 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           ))}
         </div>
 
-        <div className="flex gap-4">
-          <a
-            href={project?.githubLink}
-            target="_blank"
-            className="flex items-center"
-          >
-            <Github className="w-4 h-4 mr-2" />
-            View Code
-          </a>
-          <a
-            target="_blank"
-            href={project?.liveLink}
-            className=" ring-1 ring-gray-300 px-2 py-1.5 rounded-md flex items-center"
-          >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            Live Demo
-          </a>
+        <div className="flex flex-wrap gap-4">
+          <>
+            <a
+              href={project?.githubLink}
+              target="_blank"
+              className="flex items-center"
+            >
+              <Github className="w-4 h-4 mr-2" />
+              View Code
+            </a>
+            <a
+              target="_blank"
+              href={project?.liveLink}
+              className=" ring-1 ring-gray-300 px-2 py-1.5 rounded-md flex items-center"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Live Demo
+            </a>
+          </>
           {/* Edit Button */}
 
           {project && userId && (
@@ -770,6 +772,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
               src={image}
               alt={`Project image ${index + 2}`}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
             />
           </motion.div>
