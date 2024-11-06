@@ -147,7 +147,8 @@ const Projects = () => {
       }
 
       const addedProject = await response.json();
-      setProjects((prev) => [...prev, addedProject]);
+      console.log("🚀 ~ Projects ~ addedProject:", addedProject)
+      setProjects((prev) => [...prev, addedProject.data]);
 
       // Clear uploaded image URLs and file states after adding the project
       setFileStates([]);

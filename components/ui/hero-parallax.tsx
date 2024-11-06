@@ -15,27 +15,148 @@ import { IconArrowRight } from "@tabler/icons-react";
 import { PersonalInfo, Project, Skill } from "@/lib/types";
 import { useData } from "@/context/DataContext";
 
+// export const HeroParallax = () => {
+//   const { projects = [], skills, personalInfo } = useData();
+
+//   const splitProducts = (projects: Project[] = []) => {
+//     // Initialize rows
+//     const firstRow: Project[] = [];
+//     const secondRow: Project[] = [];
+//     const thirdRow: Project[] = [];
+
+//     // Return early if no projects or projects is not an array
+//     if (!Array.isArray(projects) || projects.length === 0) {
+//       return { firstRow, secondRow, thirdRow };
+//     }
+
+//     // Determine row size based on number of projects
+//     const rowSize =
+//       projects.length > 9
+//         ? Math.ceil(projects.length / 3)
+//         : Math.ceil(projects.length / 2);
+
+//     // Split projects into rows
+//     if (projects.length > 9) {
+//       firstRow.push(...projects.slice(0, rowSize));
+//       secondRow.push(...projects.slice(rowSize, rowSize * 2));
+//       thirdRow.push(...projects.slice(rowSize * 2));
+//     } else {
+//       firstRow.push(...projects.slice(0, rowSize));
+//       secondRow.push(...projects.slice(rowSize));
+//     }
+
+//     return { firstRow, secondRow, thirdRow };
+//   };
+
+//   // Usage
+
+//   const { firstRow, secondRow, thirdRow } = splitProducts(projects);
+
+//   const ref = React.useRef(null);
+//   const { scrollYProgress } = useScroll({
+//     target: ref,
+//     offset: ["start start", "end start"],
+//   });
+
+//   const springConfig = { stiffness: 300, damping: 30, bounce: 100 };
+
+//   const translateX = useSpring(
+//     useTransform(scrollYProgress, [0, 1], [0, 1000]),
+//     springConfig
+//   );
+//   const translateXReverse = useSpring(
+//     useTransform(scrollYProgress, [0, 1], [0, -1000]),
+//     springConfig
+//   );
+//   const rotateX = useSpring(
+//     useTransform(scrollYProgress, [0, 0.2], [15, 0]),
+//     springConfig
+//   );
+//   const opacity = useSpring(
+//     useTransform(scrollYProgress, [0, 0.2], [0.2, 1]),
+//     springConfig
+//   );
+//   const rotateZ = useSpring(
+//     useTransform(scrollYProgress, [0, 0.2], [20, 0]),
+//     springConfig
+//   );
+//   const translateY = useSpring(
+//     useTransform(scrollYProgress, [0, 0.2], [-700, 50]),
+//     springConfig
+//   );
+//   return (
+//     <div
+//       ref={ref}
+//       className="h-auto pb-28 py-20 mt-16 overflow-hidden antialiased relative flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d]"
+//     >
+//       <Header personalInfo={personalInfo} skills={skills} />
+
+//       <motion.div
+//         style={{
+//           rotateX,
+//           rotateZ,
+//           translateY,
+//           opacity,
+//         }}
+//       >
+//         <motion.div className="flex flex-row-reverse space-x-reverse space-x-20 mb-20">
+//           {firstRow.map((product: Project) => (
+//             <ProjectCard
+//               project={product}
+//               translate={translateX}
+//               key={product.title}
+//             />
+//           ))}
+//         </motion.div>
+//         <motion.div className="flex flex-row  mb-20 space-x-20 ">
+//           {secondRow.map((product: Project) => (
+//             <ProjectCard
+//               project={product}
+//               translate={translateXReverse}
+//               key={product.title}
+//             />
+//           ))}
+//         </motion.div>
+//         <motion.div className="flex flex-row-reverse space-x-reverse space-x-20">
+//           {thirdRow &&
+//             thirdRow?.map((product: Project) => (
+//               <ProjectCard
+//                 project={product}
+//                 translate={translateX}
+//                 key={product.title}
+//               />
+//             ))}
+//         </motion.div>
+//       </motion.div>
+//       <Link
+//         className="absolute flex w-36 mb-0 md:mb-3 md:w-44 h-10 group items-center justify-start bottom-0 right-0 md:right-10 text-lg font-bold underline text-red-500"
+//         href="/projects"
+//       >
+//         <span> All Projects</span>
+
+//         <IconArrowRight className="h-6 w-6 transition-all duration-300 group-hover:ml-3 text-red-500 dark:text-white" />
+//       </Link>
+//     </div>
+//   );
+// };
+
 export const HeroParallax = () => {
   const { projects = [], skills, personalInfo } = useData();
 
   const splitProducts = (projects: Project[] = []) => {
-    // Initialize rows
     const firstRow: Project[] = [];
     const secondRow: Project[] = [];
     const thirdRow: Project[] = [];
 
-    // Return early if no projects or projects is not an array
     if (!Array.isArray(projects) || projects.length === 0) {
       return { firstRow, secondRow, thirdRow };
     }
 
-    // Determine row size based on number of projects
     const rowSize =
       projects.length > 9
         ? Math.ceil(projects.length / 3)
         : Math.ceil(projects.length / 2);
 
-    // Split projects into rows
     if (projects.length > 9) {
       firstRow.push(...projects.slice(0, rowSize));
       secondRow.push(...projects.slice(rowSize, rowSize * 2));
@@ -48,8 +169,6 @@ export const HeroParallax = () => {
     return { firstRow, secondRow, thirdRow };
   };
 
-  // Usage
-
   const { firstRow, secondRow, thirdRow } = splitProducts(projects);
 
   const ref = React.useRef(null);
@@ -60,14 +179,24 @@ export const HeroParallax = () => {
 
   const springConfig = { stiffness: 300, damping: 30, bounce: 100 };
 
-  const translateX = useSpring(
+  // First row: Translate to the right for 30%, then to the left for 70%
+  const firstRowTranslateX = useSpring(
+    useTransform(scrollYProgress, [0, 0.3, 1], [0, 500, -500]),
+    springConfig
+  );
+
+  // Second row: Translate to the left for 30%, then to the right for 70%
+  const secondRowTranslateX = useSpring(
+    useTransform(scrollYProgress, [0, 0.3, 1], [0, -500, 500]),
+    springConfig
+  );
+
+  // Third row can have any effect you'd like, or no effect
+  const thirdRowTranslateX = useSpring(
     useTransform(scrollYProgress, [0, 1], [0, 1000]),
     springConfig
   );
-  const translateXReverse = useSpring(
-    useTransform(scrollYProgress, [0, 1], [0, -1000]),
-    springConfig
-  );
+
   const rotateX = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [15, 0]),
     springConfig
@@ -84,6 +213,7 @@ export const HeroParallax = () => {
     useTransform(scrollYProgress, [0, 0.2], [-700, 50]),
     springConfig
   );
+
   return (
     <div
       ref={ref}
@@ -103,42 +233,45 @@ export const HeroParallax = () => {
           {firstRow.map((product: Project) => (
             <ProjectCard
               project={product}
-              translate={translateX}
+              translate={firstRowTranslateX}
               key={product.title}
             />
           ))}
         </motion.div>
+
         <motion.div className="flex flex-row  mb-20 space-x-20 ">
           {secondRow.map((product: Project) => (
             <ProjectCard
               project={product}
-              translate={translateXReverse}
+              translate={secondRowTranslateX}
               key={product.title}
             />
           ))}
         </motion.div>
+
         <motion.div className="flex flex-row-reverse space-x-reverse space-x-20">
           {thirdRow &&
             thirdRow?.map((product: Project) => (
               <ProjectCard
                 project={product}
-                translate={translateX}
+                translate={thirdRowTranslateX}
                 key={product.title}
               />
             ))}
         </motion.div>
       </motion.div>
+
       <Link
         className="absolute flex w-36 mb-0 md:mb-3 md:w-44 h-10 group items-center justify-start bottom-0 right-0 md:right-10 text-lg font-bold underline text-red-500"
         href="/projects"
       >
         <span> All Projects</span>
-
         <IconArrowRight className="h-6 w-6 transition-all duration-300 group-hover:ml-3 text-red-500 dark:text-white" />
       </Link>
     </div>
   );
 };
+
 
 interface HeaderProps {
   personalInfo?: PersonalInfo; // Make optional
