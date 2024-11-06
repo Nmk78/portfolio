@@ -76,7 +76,7 @@ const Projects = () => {
     if (!error && !isLoading && data) {
       setProjects(data);
     }
-  }, [projects, isLoading, error]);
+  }, [data, isLoading, error]);
 
   const handleFilesChange = (newFiles: FileState[]) => {
     setFileStates(newFiles); // Ensure this updates the state correctly
