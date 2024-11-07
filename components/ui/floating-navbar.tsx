@@ -122,8 +122,8 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
       <Link
         href={item.link}
         className={cn(
-          "flex items-center space-x-2 px-2 py-2 text-neutral-600 dark:text-neutral-50 hover:text-neutral-500 dark:hover:text-neutral-300",
-          isActive && "font-semibold text-red-600 dark:text-red-500"
+          "flex items-center space-x-2 px-2 py-2 text-neutral-600 dark:text-neutral-50 hover:text-red-700",
+          isActive && "font-semibold text-red-600"
         )}
         onClick={() => setIsMenuOpen(false)}
       >

@@ -227,40 +227,110 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
     return urls;
   };
 
+  // const handleUpdateProject = async () => {
+  //   console.log("Handle Update Project Fn running");
+  //   try {
+  //     // Step 1: Identify removed images
+  //     const removedImages = project?.images.filter(
+  //       (url) => !uploadedImageUrls.includes(url)
+  //     );
+
+  //     // Step 2: Delete removed images from EdgeStore
+  //     if (removedImages && removedImages?.length > 0) {
+  //       await Promise.all(
+  //         removedImages.map(async (url) => {
+  //           try {
+  //             await edgestore.publicImages.delete({ url: url }); // Assuming you have a delete method
+  //           } catch (error) {
+  //             console.error("Error deleting image:", error);
+  //           }
+  //         })
+  //       );
+  //     }
+
+  //     // Step 3: Upload new images
+  //     // const newImages = fileStates.filter(
+  //     //   (file) => !uploadedImageUrls.includes(file.url)
+  //     // );
+
+  //     const newImages = fileStates.filter((fileState) => {
+  //       // Create a URL for the file object
+  //       const fileUrl = URL.createObjectURL(fileState.file);
+  //       return !uploadedImageUrls.includes(fileUrl);
+  //     });
+
+  //     const newImageUrls = await handleUploadImages(newImages);
+
+  //     // Step 4: Prepare updated project data
+  //     const updatedProject = {
+  //       title,
+  //       shortDesc,
+  //       description,
+  //       githubLink,
+  //       liveLink,
+  //       images: [...uploadedImageUrls, ...newImageUrls], // Combine existing and new image URLs
+  //       techStack,
+  //       keyFeatures,
+  //     };
+
+  //     // Step 5: Send updated project data to the API
+  //     const response = await fetch(`/api/projects?id=${id}`, {
+  //       method: "PUT",
+  //       body: JSON.stringify(updatedProject),
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
+
+  //     const updatedProjectData = await response.json();
+  //     // Update the state with the new project data
+  //     setProject(updatedProjectData);
+
+  //     // Optionally, clear file states and image URLs
+  //     setUploadedImageUrls([]);
+  //     setFileStates([]);
+  //     return updatedProjectData;
+  //   } catch (error) {
+  //     console.error("Error updating project:", error);
+  //     alert("Failed to update project. Please try again.");
+  //   }
+
+  //   console.log("Handle Update Project Fn Done");
+  // };
+
+  /////
   const handleUpdateProject = async () => {
     console.log("Handle Update Project Fn running");
     try {
-      // Step 1: Identify removed images
+      // Step 1: Identify removed images (Compare URLs from the project)
       const removedImages = project?.images.filter(
         (url) => !uploadedImageUrls.includes(url)
       );
-
+  
       // Step 2: Delete removed images from EdgeStore
       if (removedImages && removedImages?.length > 0) {
         await Promise.all(
           removedImages.map(async (url) => {
             try {
-              await edgestore.publicImages.delete({ url: url }); // Assuming you have a delete method
+              await edgestore.publicImages.delete({ url });
             } catch (error) {
               console.error("Error deleting image:", error);
             }
           })
         );
       }
-
-      // Step 3: Upload new images
-      // const newImages = fileStates.filter(
-      //   (file) => !uploadedImageUrls.includes(file.url)
-      // );
-
-      const newImages = fileStates.filter((fileState) => {
-        // Create a URL for the file object
-        const fileUrl = URL.createObjectURL(fileState.file);
-        return !uploadedImageUrls.includes(fileUrl);
-      });
-
+  
+      // Step 3: Filter new images (based on the file name or unique identifier, not URL)
+      const newImages = fileStates.filter(
+        (fileState) => !uploadedImageUrls.some((url) => fileState.file.name === extractFileNameFromUrl(url))
+      );
+  
       const newImageUrls = await handleUploadImages(newImages);
-
+  
       // Step 4: Prepare updated project data
       const updatedProject = {
         title,
@@ -272,7 +342,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
         techStack,
         keyFeatures,
       };
-
+  
       // Step 5: Send updated project data to the API
       const response = await fetch(`/api/projects?id=${id}`, {
         method: "PUT",
@@ -281,26 +351,33 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           "Content-Type": "application/json",
         },
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const updatedProjectData = await response.json();
-      // Update the state with the new project data
-      setProject(updatedProjectData);
-
+      setProject(updatedProjectData); // Update the state with the new project data
+  
       // Optionally, clear file states and image URLs
-      setUploadedImageUrls([]);
-      setFileStates([]);
+      setUploadedImageUrls([...uploadedImageUrls, ...newImageUrls]); // Ensure newly uploaded images are added
+      setFileStates([]); // Reset file states after successful upload
       return updatedProjectData;
     } catch (error) {
       console.error("Error updating project:", error);
       alert("Failed to update project. Please try again.");
     }
-
+  
     console.log("Handle Update Project Fn Done");
   };
+  
+  // Helper function to extract file name from URL
+  const extractFileNameFromUrl = (url: string) => {
+    const segments = url.split('/');
+    return segments[segments.length - 1];
+  };
+  
+  /////
 
   const mutation = useMutation({
     mutationFn: async () => handleUpdateProject(), // Mutation function
@@ -682,7 +759,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                       {mutation.isPending && (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       )}
-                      Edit Project
+                      Save Project
                     </Button>
                   </DrawerFooter>
                 </DrawerContent>
