@@ -310,7 +310,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
       const removedImages = project?.images.filter(
         (url) => !uploadedImageUrls.includes(url)
       );
-  
+
       // Step 2: Delete removed images from EdgeStore
       if (removedImages && removedImages?.length > 0) {
         await Promise.all(
@@ -323,14 +323,17 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           })
         );
       }
-  
+
       // Step 3: Filter new images (based on the file name or unique identifier, not URL)
       const newImages = fileStates.filter(
-        (fileState) => !uploadedImageUrls.some((url) => fileState.file.name === extractFileNameFromUrl(url))
+        (fileState) =>
+          !uploadedImageUrls.some(
+            (url) => fileState.file.name === extractFileNameFromUrl(url)
+          )
       );
-  
+
       const newImageUrls = await handleUploadImages(newImages);
-  
+
       // Step 4: Prepare updated project data
       const updatedProject = {
         title,
@@ -342,7 +345,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
         techStack,
         keyFeatures,
       };
-  
+
       // Step 5: Send updated project data to the API
       const response = await fetch(`/api/projects?id=${id}`, {
         method: "PUT",
@@ -351,14 +354,14 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
           "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const updatedProjectData = await response.json();
       setProject(updatedProjectData); // Update the state with the new project data
-  
+
       // Optionally, clear file states and image URLs
       setUploadedImageUrls([...uploadedImageUrls, ...newImageUrls]); // Ensure newly uploaded images are added
       setFileStates([]); // Reset file states after successful upload
@@ -367,16 +370,16 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
       console.error("Error updating project:", error);
       alert("Failed to update project. Please try again.");
     }
-  
+
     console.log("Handle Update Project Fn Done");
   };
-  
+
   // Helper function to extract file name from URL
   const extractFileNameFromUrl = (url: string) => {
-    const segments = url.split('/');
+    const segments = url.split("/");
     return segments[segments.length - 1];
   };
-  
+
   /////
 
   const mutation = useMutation({
@@ -500,22 +503,26 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
 
         <div className="flex flex-wrap gap-4">
           <>
-            <a
-              href={project?.githubLink}
-              target="_blank"
-              className="flex items-center"
-            >
-              <Github className="w-4 h-4 mr-2" />
-              View Code
-            </a>
-            <a
-              target="_blank"
-              href={project?.liveLink}
-              className=" ring-1 ring-gray-300 px-2 py-1.5 rounded-md flex items-center"
-            >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Live Demo
-            </a>
+            {project?.githubLink && (
+              <a
+                href={project?.githubLink}
+                target="_blank"
+                className="flex items-center"
+              >
+                <Github className="w-4 h-4 mr-2" />
+                View Code
+              </a>
+            )}
+            {project?.liveLink && (
+              <a
+                target="_blank"
+                href={project?.liveLink}
+                className=" ring-1 ring-gray-300 px-2 py-1.5 rounded-md flex items-center"
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Live Demo
+              </a>
+            )}
           </>
           {/* Edit Button */}
 
