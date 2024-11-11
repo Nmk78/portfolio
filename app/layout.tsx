@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     images: [
       {
         // TODO to change cover image cuz it has ugly download cv text
-        url: `${baseUrl}/images/cover.jpg`, // Replace with your image URL
+        url: `${baseUrl}/images/cover.webp`, // Replace with your image URL
         width: 800,
         height: 600,
         alt: "Nay Myo Khant - Web Developer",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     description: "Personal portfolio of a computerphile student.",
     images: [
       {
-        url: `${baseUrl}/images/cover.jpg`, // Replace with your image URL
+        url: `${baseUrl}/images/cover.webp`, // Replace with your image URL
         alt: "Nay Myo Khant - Web Developer",
       },
     ],
