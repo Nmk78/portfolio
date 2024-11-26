@@ -1,4 +1,3 @@
-
 import { type Message as TMessage } from "ai/react";
 import { MessageSquare } from "lucide-react";
 import { Message } from "./Message";
@@ -17,13 +16,15 @@ export const Messages = ({ messages }: MessagesProps) => {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [messages]);
+
+
   return (
     <div
       ref={containerRef}
-      className="custom-scrollbar pb-3 flex flex-col justify-end h-[60vh] max-h-[550px] overflow-y-auto"
+      className="h-full flex flex-col justify-end overflow-y-auto pt-12 scrollbar-thin custom-scrollbar"
+      // className="messages-container custom-scrollbar pb-3"
     >
       {messages.length ? (
-        // Map over messages and display each one
         messages.map((message, i) => (
           <Message
             key={i}
@@ -32,7 +33,6 @@ export const Messages = ({ messages }: MessagesProps) => {
           />
         ))
       ) : (
-        // Display this content when there are no messages
         <div className="flex-1 flex flex-col items-center justify-center gap-2 flex-shrink-0">
           <MessageSquare className="h-8 w-8 text-red-500" />
           <h3 className="font-semibold text-xl text-red-500">Ask about me!</h3>

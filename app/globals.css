@@ -114,7 +114,20 @@
 }
 
 .custom-scrollbar {
+  /* height: 400px; */
+  /* max-height: 550px; */
+
   scrollbar-width: thin;
   scrollbar-color: #ff000088 #c8c8c800; /* Thumb and track colors */
-  overflow-y: auto;
+  /* overflow-y: auto; */
+}
+
+
+.messages-container {
+  height: 60vh; /* Restrict height to 60% of the viewport */
+  max-height: 550px; /* Optional maximum height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Keep the latest message at the bottom */
 }
