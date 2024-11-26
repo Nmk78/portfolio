@@ -232,6 +232,26 @@ export default function FloatingNav({ navItems, className }: FloatingNavProps) {
                   <NavLink item={item} />
                 </motion.div>
               ))}
+
+              <button
+                onClick={() => {
+                  if (cv?.url) {
+                    downloadFile(cv.url.toString(), cv.name); // Trigger download with desired filename
+                  }
+                }}
+                className={`hidden items-center space-x-2 rounded-sm border border-gray-300 px-4 py-2 text-sm font-medium text-neutral-600 
+    ${
+      !cv?.url
+        ? "opacity-50 cursor-not-allowed"
+        : "hover:bg-gray-50 hover:text-neutral-500"
+    }
+    dark:text-neutral-50 dark:hover:bg-gray-800 dark:hover:text-neutral-300 sm:flex`}
+                aria-disabled={!cv?.url} // Set aria-disabled for accessibility when no URL
+              >
+                <IconFileCv className="h-4 w-4 text-neutral-500 dark:text-white" />
+                <span>Download CV</span>
+              </button>
+
               {isSignedIn && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
