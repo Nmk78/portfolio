@@ -138,7 +138,7 @@ export const HeroParallax = () => {
 
       <Link
         className="absolute flex w-36 mb-0 md:mb-3 md:w-44 h-10 group items-center justify-start bottom-0 right-0 md:right-10 text-lg font-bold underline text-red-500"
-        href="/projects"
+        href="/project"
       >
         <span> All Projects</span>
         <IconArrowRight className="h-6 w-6 transition-all duration-300 group-hover:ml-3 text-red-500 dark:text-white" />
