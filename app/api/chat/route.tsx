@@ -97,12 +97,37 @@ export async function POST(request: NextRequest) {
       throw new Error("No context found in the database.");
     }
 
-    const res = await ragChat.chat("Assistance: Act as Nay Myo Khant is replying "+lastMessage, {
-      streaming: true,
-      sessionId,
-    });
-    console.log("🚀 ~ res:", res);
+    //🛠️ Fixing 404 Cannot POST /llm/v1/chat/completions error at 6/5/2025
 
+    // const res = await ragChat.chat("Assistance: Act as Nay Myo Khant is replying "+lastMessage, {
+    //   streaming: true,
+    //   sessionId,
+    // });
+    // console.log("🚀 ~ res:", res);
+
+    let res;
+    try {
+      res = await ragChat.chat(
+        "Assistance: Act as Nay Myo Khant is replying " + lastMessage,
+        {
+          streaming: true,
+          sessionId,
+        }
+      );
+      console.log("🚀 ~ res:", res);
+    } catch (chatError) {
+      console.error("❌ Failed to get response from ragChat.chat():", chatError);
+      return NextResponse.json(
+        {
+          status: "error",
+          message: "Failed to fetch response from chat engine.",
+          error: chatError,
+          data: null,
+        },
+        { status: 500 }
+      );
+    }
+    
     // Return the response wrapped in your aiUseChatAdapter (assuming it's your formatter)
     return aiUseChatAdapter(res);
   } catch (error) {

@@ -5,7 +5,6 @@ import {
   createEdgeStoreNextHandler,
 } from "@edgestore/server/adapters/next/app";
 
-
 type Context = {
   userId: string;
   userName: string | null;
@@ -28,7 +27,9 @@ async function createContext({ req }: CreateContextOptions): Promise<Context> {
 
     // Ensure both userId and userName are valid before proceeding
     if (!userId || !userName) {
-      throw new Error("Authentication error: Missing userId or username.");
+      throw new Error(
+        "Authentication error: Missing userId or username.(This is seeing because edgestore try to initialize at first regardless of user signed or not)"
+      );
     }
 
     return {
