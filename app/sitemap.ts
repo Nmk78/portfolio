@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Map over the projects to create the sitemap entries
   const projectEntries: MetadataRoute.Sitemap = projects.map((project: { id: string }) => ({
-    url: `${baseUrl}/projects/${project.id}`,
+    url: `${baseUrl}/project/${project.id}`,
     lastModified: new Date().toISOString(), // You can customize this with your data, if available
     changeFrequency: "monthly", // Adjust according to your update frequency
     priority: 0.8, // Set the priority based on importance
