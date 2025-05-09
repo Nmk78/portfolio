@@ -2,12 +2,65 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { PhoneCallIcon, MailIcon } from "lucide-react";
+import { Metadata } from "next";
 import React, { useEffect, useState } from "react";
 
 const phrases = ["Wanna know more?", "Interested?", "Let's talk."];
 
+const baseUrl = process.env.url || "http://localhost:3000";
+
+export const metadata: Metadata = {
+  title: "Nay Myo Khant",
+  description: "Passionate computer studied student",
+  openGraph: {
+    title: "Nay Myo Khant",
+    description: "Personal portfolio of a computerphile student.",
+    url: baseUrl, // Replace with your actual URL
+    siteName: "Nay Myo Khant",
+    locale: "en_US",
+    type: "article",
+    images: [
+      {
+        url: `${baseUrl}/images/cover.webp`, // Replace with your image URL
+        width: 800,
+        height: 600,
+        alt: "Nay Myo Khant - Web Developer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nay Myo Khant - Computer Studied Student & Web Developer",
+    description: "Personal portfolio of a computerphile student.",
+    images: [
+      {
+        url: `${baseUrl}/images/cover.webp`, // Replace with your image URL
+        alt: "Nay Myo Khant - Web Developer",
+      },
+    ],
+  },
+  keywords: [
+    "Nay Myo Khant",
+    "Nay Myo Thura Kyaw",
+    "Web Developer",
+    "Computer Science Student",
+    "Next.js",
+    "Vercel",
+    "Portfolio",
+    "UCS Myeik",
+    "PU Myeik",
+    "Polytechnic University Myeik",
+    "ERP",
+    "Technology Enthusiast"
+  ].join(", "),
+  alternates: {
+    canonical: `${baseUrl}`, // dynamic if needed
+  },
+};
+
 export default function Component() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+
 
   useEffect(() => {
     const interval = setInterval(() => {

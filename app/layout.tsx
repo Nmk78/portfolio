@@ -7,7 +7,7 @@ import { DataProvider } from "@/context/DataContext";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import { ReactQueryProvider } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -21,7 +21,6 @@ const geistMono = localFont({
 });
 
 const baseUrl = process.env.url || "http://localhost:3000";
-
 
 export const metadata: Metadata = {
   title: "Nay Myo Khant",
@@ -40,7 +39,7 @@ export const metadata: Metadata = {
         alt: "Nay Myo Khant - Web Developer",
       },
     ],
-    
+
     locale: "en_US",
     type: "website",
   },
@@ -64,9 +63,14 @@ export const metadata: Metadata = {
     "Vercel",
     "Portfolio",
     "UCS Myeik",
+    "PU Myeik",
+    "Polytechnic University Myeik",
     "ERP",
-    "Technology Enthusiast"
+    "Technology Enthusiast",
   ].join(", "),
+  alternates: {
+    canonical: `${baseUrl}`, // dynamic if needed
+  },
 };
 
 export default function RootLayout({

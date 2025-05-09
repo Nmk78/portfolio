@@ -103,7 +103,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 
   if (!project) {
     return {
-      title: "Project Not Found | Your Site",
+      title: "Project Not Found | Nay Myo Khant",
       description: "This project does not exist.",
     };
   }
@@ -119,9 +119,15 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   return {
     title: `${project.title} | Nay Myo Khant`,
     description: project.shortDesc,
+    alternates: {
+      canonical: `${baseUrl}/project/${project.id}`,
+    },
     openGraph: {
       title: project.title,
       description: project.shortDesc,
+      siteName: "Nay Myo Khant",
+      locale: "en_US",
+      type: "website",
       images: project.images.length ? [{ url: project.images[0] }] : [],
       url: `${baseUrl}/project/${project.id}`,
     },
@@ -132,9 +138,6 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
       images: project.images.length ? [{ url: project.images[0] }] : [],
     },
     keywords: keywords,
-    alternates: {
-      canonical: `${baseUrl}/project/${project.id}`,
-    },
   };
 }
 
