@@ -164,7 +164,7 @@ export const Header: React.FC<HeaderProps> = ({ personalInfo, skills }) => {
       className="max-w-7xl mx-auto mt-60 md:mt-32 relative py-16 md:py-40 w-full left-0 top-0 transition-all duration-300"
     >
       <div className="flex flex-col justify-center space-y-5 mx-7 md:mx-14">
-        <h1 className="text-2xl md:text-7xl font-bold text-red-800 dark:text-white">
+        <h1 className="text-2xl md:text-5xl font-bold text-red-800 dark:text-white">
           {personalInfo ? (
             personalInfo.name
           ) : (
