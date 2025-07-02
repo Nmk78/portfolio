@@ -227,82 +227,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
     return urls;
   };
 
-  // const handleUpdateProject = async () => {
-  //   console.log("Handle Update Project Fn running");
-  //   try {
-  //     // Step 1: Identify removed images
-  //     const removedImages = project?.images.filter(
-  //       (url) => !uploadedImageUrls.includes(url)
-  //     );
 
-  //     // Step 2: Delete removed images from EdgeStore
-  //     if (removedImages && removedImages?.length > 0) {
-  //       await Promise.all(
-  //         removedImages.map(async (url) => {
-  //           try {
-  //             await edgestore.publicImages.delete({ url: url }); // Assuming you have a delete method
-  //           } catch (error) {
-  //             console.error("Error deleting image:", error);
-  //           }
-  //         })
-  //       );
-  //     }
-
-  //     // Step 3: Upload new images
-  //     // const newImages = fileStates.filter(
-  //     //   (file) => !uploadedImageUrls.includes(file.url)
-  //     // );
-
-  //     const newImages = fileStates.filter((fileState) => {
-  //       // Create a URL for the file object
-  //       const fileUrl = URL.createObjectURL(fileState.file);
-  //       return !uploadedImageUrls.includes(fileUrl);
-  //     });
-
-  //     const newImageUrls = await handleUploadImages(newImages);
-
-  //     // Step 4: Prepare updated project data
-  //     const updatedProject = {
-  //       title,
-  //       shortDesc,
-  //       description,
-  //       githubLink,
-  //       liveLink,
-  //       images: [...uploadedImageUrls, ...newImageUrls], // Combine existing and new image URLs
-  //       techStack,
-  //       keyFeatures,
-  //     };
-
-  //     // Step 5: Send updated project data to the API
-  //     const response = await fetch(`/api/projects?id=${id}`, {
-  //       method: "PUT",
-  //       body: JSON.stringify(updatedProject),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
-
-  //     const updatedProjectData = await response.json();
-  //     // Update the state with the new project data
-  //     setProject(updatedProjectData);
-
-  //     // Optionally, clear file states and image URLs
-  //     setUploadedImageUrls([]);
-  //     setFileStates([]);
-  //     return updatedProjectData;
-  //   } catch (error) {
-  //     console.error("Error updating project:", error);
-  //     alert("Failed to update project. Please try again.");
-  //   }
-
-  //   console.log("Handle Update Project Fn Done");
-  // };
-
-  /////
   const handleUpdateProject = async () => {
     console.log("Handle Update Project Fn running");
     try {
@@ -718,7 +643,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
                                   key={index}
                                   className="border-0 p-0 w-full h-full relative shadow-md bg-slate-200 dark:bg-slate-900 rounded-md aspect-video"
                                 >
-                                  <img
+                                  <Image
                                     className="h-full w-full rounded-sm object-contain"
                                     src={url}
                                     alt={`Uploaded image ${index + 1}`}

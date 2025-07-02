@@ -25,14 +25,29 @@ const baseUrl = process.env.url || "http://localhost:3000";
 export const metadata: Metadata = {
   title: "Nay Myo Khant",
   description: "Passionate computer studied student",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "any" },
+    ],
+    apple: "/images/apple-icon.png",
+  },
+  manifest: "/manifest.json",
+  generator: "Next.js",
+  applicationName: "Nay Myo Khant",
+  referrer: "origin-when-cross-origin",
+  metadataBase: new URL("https://naymyokhant.vercel.app"),
+  category: "portfolio",
+  authors: [{ name: "Nay Myo Khant" }],
+    creator: "Nay Myo Khant",
+  publisher: "Nay Myo Khant",
   openGraph: {
     title: "Nay Myo Khant",
     description: "Personal portfolio of a computerphile student.",
-    url: baseUrl, // Replace with your actual URL
+    url: baseUrl,
     siteName: "Nay Myo Khant",
     images: [
       {
-        // TODO to change cover image cuz it has ugly download cv text
         url: `${baseUrl}/images/cover.webp`, // Replace with your image URL
         width: 800,
         height: 600,
@@ -57,19 +72,20 @@ export const metadata: Metadata = {
   keywords: [
     "Nay Myo Khant",
     "Nay Myo Thura Kyaw",
-    "Web Developer",
-    "Computer Science Student",
-    "Next.js",
-    "Vercel",
-    "Portfolio",
-    "UCS Myeik",
-    "PU Myeik",
-    "Polytechnic University Myeik",
-    "ERP",
-    "Technology Enthusiast",
-  ].join(", "),
+    "Nay Myo Khant portfolio",
+    "Nay Myo Khant CV",
+  ],
+  //  keywords: [
+  //   "Nay Myo Khant",
+  //   "Nay Myo Thura Kyaw",
+  //   "Nay Myo Khant portfolio",
+  //   "Nay Myo Khant CV",
+  // ].join(", "),
   alternates: {
     canonical: `${baseUrl}`, // dynamic if needed
+  },
+  appleWebApp: {
+    title: "NMK",
   },
 };
 

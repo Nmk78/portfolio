@@ -1,8 +1,9 @@
+import Image from "next/image";
 
 export default function DynamicIcons({ icon }: { icon: string }) {
   icon = icon.toLowerCase()
   return (
-    <img
+    <Image
       src={`https://cdn.simpleicons.org/${icon}`}
       width={40}
       height={40}
