@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const isDev = process.env.NODE_ENV !== "production";
+
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -7,15 +9,24 @@ const nextConfig = {
     ],
   },
 
-  async headers() {
+async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
           {
             key: "Content-Security-Policy",
-            value:
-              "default-src 'self'; img-src *; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+            value: `
+              default-src 'self';
+              script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://cdn.clerk.dev https://*.clerk.accounts.dev https://va.vercel-scripts.com;
+              style-src 'self' 'unsafe-inline';
+              img-src * blob: data:;
+              font-src 'self' https://fonts.gstatic.com;
+              connect-src *;
+              frame-src https://*.clerk.dev https://*.clerk.accounts.dev;
+              object-src 'none';
+              base-uri 'self';
+            `.replace(/\s{2,}/g, " ").trim(),
           },
           {
             key: "X-Frame-Options",

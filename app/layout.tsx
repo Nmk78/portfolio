@@ -69,18 +69,12 @@ export const metadata: Metadata = {
       },
     ],
   },
-  keywords: [
+   keywords: [
     "Nay Myo Khant",
     "Nay Myo Thura Kyaw",
     "Nay Myo Khant portfolio",
     "Nay Myo Khant CV",
-  ],
-  //  keywords: [
-  //   "Nay Myo Khant",
-  //   "Nay Myo Thura Kyaw",
-  //   "Nay Myo Khant portfolio",
-  //   "Nay Myo Khant CV",
-  // ].join(", "),
+  ].join(", "),
   alternates: {
     canonical: `${baseUrl}`, // dynamic if needed
   },
