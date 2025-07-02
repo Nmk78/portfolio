@@ -1,9 +1,9 @@
-import Image from "next/image";
-
 export default function DynamicIcons({ icon }: { icon: string }) {
   icon = icon.toLowerCase()
   return (
-    <Image
+    ///Error with <Image/> component, so using <img/> instead
+    //eslint-disable-next-line @next/next/no-img-element
+    <img
       src={`https://cdn.simpleicons.org/${icon}`}
       width={40}
       height={40}
