@@ -17,45 +17,27 @@ import { PersonalInfo } from "@/lib/types";
 import ContextManager from "./Context";
 import { useData } from "@/context/DataContext";
 
-// const PersonalInformation = ({handlePersonalInfoSubmit, handlePersonalInfoChange}) => {
 const PersonalInformation = () => {
-  // const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null);
-  // const { user } = useUser();
-  // const { personalInfo:data, isLoading, error } = useData();
+  const [personalInfo, setPersonalInfo] = useState<PersonalInfo>({
+    id: "",
+    name: "",
+    bio: "",
+    description: "",
+  });
+  const { user } = useUser();
+  const { personalInfo: data, isLoading, error } = useData();
 
-  // useEffect(() => {
-  //   if (!error && !isLoading) {
-  //     setPersonalInfo(data.data);
-  //   }
-  // }, [data, isLoading, error]);
-
-  const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null); // Rename to avoid conflict with imported `personalInfo`
-const { user } = useUser();
-const { personalInfo:data, isLoading, error } = useData();
-
-useEffect(() => {
-  if (!error && !isLoading && data) {
-    setPersonalInfo(data); // Directly set `personalInfo` from useData
-  }
-}, [personalInfo, isLoading, error]);
-
-  // const fetchPersonalInfo = async () => {
-  //   const { data } = await axios.get("/api/info"); // Adjust the API endpoint accordingly
-  //   return data;
-  // };
-
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ["personalInfo"],
-  //   queryFn: fetchPersonalInfo,
-  // });
+  useEffect(() => {
+    if (!error && !isLoading && data) {
+      setPersonalInfo(data); // Directly set `personalInfo` from useData
+    }
+  }, [personalInfo, isLoading, error, data]);
 
   const handlePersonalInfoChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setPersonalInfo((prevInfo) =>
-      prevInfo ? { ...prevInfo, [name]: value } : null
-    );
+    setPersonalInfo((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePersonalInfoSubmit = async () => {
@@ -72,7 +54,7 @@ useEffect(() => {
       }
     }
   };
-  console.log("🚀 ~ PersonalInformation ~ personalInfo:", personalInfo)
+  console.log("🚀 ~ PersonalInformation ~ personalInfo:", personalInfo);
 
   return (
     <Card className="md:col-span-2 md:row-span-2 border rounded-none shadow-none">
