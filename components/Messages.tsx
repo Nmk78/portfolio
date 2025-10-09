@@ -1,4 +1,4 @@
-import { type Message as TMessage } from "ai/react";
+import { type UIMessage as TMessage } from "@ai-sdk/react";
 import { MessageSquare } from "lucide-react";
 import { Message } from "./Message";
 import { useEffect, useRef } from "react";
@@ -17,7 +17,6 @@ export const Messages = ({ messages }: MessagesProps) => {
     }
   }, [messages]);
 
-
   return (
     <div
       ref={containerRef}
@@ -25,13 +24,23 @@ export const Messages = ({ messages }: MessagesProps) => {
       // className="messages-container custom-scrollbar pb-3"
     >
       {messages.length ? (
-        messages.map((message, i) => (
-          <Message
-            key={i}
-            content={message.content}
-            isUserMessage={message.role === "user"}
-          />
-        ))
+        <div className="flex flex-col-reverse">
+          {" "}
+          {/* Optional: Use flex-col-reverse to show newest messages at the bottom */}
+          {messages.map((message, i) => (
+            <Message
+              key={message.id || i} // 💡 Use message.id for a stable key if available, otherwise use index
+              // ✅ FIX: Map over the parts to get the text, then JOIN them into one string.
+              content={
+                message.parts
+                  .filter((part) => part.type === "text") // Only process text parts
+                  .map((part) => part.text)
+                  .join("") // Concatenate all parts into a single string
+              }
+              isUserMessage={message.role === "user"}
+            />
+          ))}
+        </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center gap-2 flex-shrink-0">
           <MessageSquare className="h-8 w-8 text-red-500" />

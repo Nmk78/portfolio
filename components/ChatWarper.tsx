@@ -1,23 +1,36 @@
 "use client";
 
-import React from "react";
-import { Message, useChat } from "ai/react";
-import { Messages } from "./Messages";
+import React, { useEffect, useRef, useState } from "react";
+import { useChat, UIMessage } from "@ai-sdk/react";
+// import { Messages } from "./Messages";
 import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input";
+import { DefaultChatTransport } from "ai";
+import { Message } from "./Message";
+import { MessageSquare } from "lucide-react";
 
-export const ChatWrapper = ({
-  sessionId,
-  initialMessages,
-}: {
-  sessionId: string | null;
-  initialMessages: Message[] | undefined;
+export const ChatWrapper = ({}: //   sessionId,
+// initialMessages,
+{
+  sessionId?: string | null;
+  // initialMessages: UIMessage[] | undefined;
 }) => {
-  const { messages, handleInputChange, handleSubmit, input, setInput } =
-    useChat({
-      api: `/api/chat`,
-      body: { sessionId },
-      initialMessages,
-    });
+  const [input, setInput] = useState("");
+  const [initialMessages] = useState<UIMessage[]>([]);
+  const { messages, sendMessage, status, error, stop } = useChat({
+    messages: initialMessages,
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+    }),
+  });
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const placeholders = [
     "Who is Nay Myo Khant?",
@@ -32,21 +45,44 @@ export const ChatWrapper = ({
       <div className="w-full max-w-xl mx-auto h-full rounded-b-3xl bg-transparent bg-gray-100 flex flex-col">
         {/* Messages container */}
         <div className="flex-1 bg-gray-100 overflow-hidden relative">
-          {true && ( // Replace `true` with a `isMaintaining` flag if needed
-            <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
-              <div className="text-lg font-semibold text-gray-700 mb-2">
-                🔧 Under Maintenance
-              </div>
-              <p className="text-sm text-gray-500 text-center max-w-xs">
-                Currently working to improve the chat experience. Please check
-                back later.
-              </p>
-            </div>
-          )}
-
           <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white via-gray-100/50 to-transparent pointer-events-none z-10" />
           <div className="w-full h-full">
-            <Messages messages={messages} />
+            <div
+              ref={containerRef}
+              className="h-full flex flex-col justify-end overflow-y-auto pt-12 scrollbar-thin custom-scrollbar"
+              // className="messages-container custom-scrollbar pb-3"
+            >
+              {messages?.length > 0 ? (
+                messages.map((message, i) => (
+                  <Message
+                    key={message.id || i}
+                    content={
+                      message.parts
+                        .filter((part) => part.type === "text") // Only process text parts
+                        .map((part) => part.text)
+                        .join("") // Concatenate all parts into a single string
+                    }
+                    isUserMessage={message.role === "user"}
+                  />
+                ))
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center gap-2 flex-shrink-0">
+                  <MessageSquare className="h-8 w-8 text-red-500" />
+                  <h3 className="font-semibold text-xl text-red-500">
+                    Ask about me!
+                  </h3>
+                  <p className="text-zinc-500 text-sm">
+                    Ask your first question to get started.
+                  </p>
+                </div>
+              )}
+              {status === "streaming" && (
+                <Message content="..." isLoading={true} isUserMessage={false} />
+              )}
+              {error && (
+                <Message content={error.message} isUserMessage={false} />
+              )}
+            </div>
           </div>
         </div>
         {/* Input container */}
@@ -55,8 +91,16 @@ export const ChatWrapper = ({
             placeholders={placeholders}
             input={input}
             setInput={setInput}
-            handleInputChange={handleInputChange}
-            handleSubmit={handleSubmit}
+            handleSubmit={(event) => {
+              // Use 'event' to prevent default if it exists
+              event?.preventDefault?.();
+
+              // Your custom logic
+              sendMessage({ text: input });
+              setInput("");
+            }}
+            status={status}
+            handleStop={stop}
           />
         </div>
       </div>
