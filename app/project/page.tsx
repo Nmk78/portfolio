@@ -6,9 +6,6 @@ import axios from "axios";
 import React, { useState } from "react";
 
 const Page = () => {
-
-
-
   const [projects, setProjects] = useState<Project[]>([]); // For API data
 
   const fetchProjects = async () => {

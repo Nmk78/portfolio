@@ -74,6 +74,8 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
   const [newTechItem, setNewTechItem] = useState<string>("");
   const [newFeature, setNewFeature] = useState<string>("");
+  
+  const baseUrl = process.env.url || "http://localhost:3000";
 
   /// Delete
   async function deleteProject(id: any) {
@@ -226,7 +228,6 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
 
     return urls;
   };
-
 
   const handleUpdateProject = async () => {
     console.log("Handle Update Project Fn running");
@@ -405,428 +406,448 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   }
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 mt-12 py-12">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">{project?.title}</h1>
-        <p className="text-xl text-gray-900 mb-4">{project?.shortDesc}</p>
-        <p className="text-md text-balance text-gray-900 mb-4">
-          {project?.description}
-        </p>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CreativeWork",
+            name: project.title,
+            description: project.shortDesc,
+            url: `${baseUrl}/project/${project.id}`,
+            keywords: project.techStack.join(", "),
+            image: project.images.length
+              ? [`${baseUrl}${project.images[0]}`]
+              : [],
+          }),
+        }}
+      />
+      <div className="container max-w-7xl mx-auto px-4 mt-12 py-12">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2">{project?.title}</h1>
+          <p className="text-xl text-gray-900 mb-4">{project?.shortDesc}</p>
+          <p className="text-md text-balance text-gray-900 mb-4">
+            {project?.description}
+          </p>
 
-        <div title="Used tech stacks" className="flex flex-wrap gap-4 mb-4">
-          {project?.techStack?.map((tech, index) => (
-            <div
-              key={index}
-              className="flex flex-col justify-center items-center bg-secondary rounded-full py-1 space-y-2"
-            >
-              {/* <DynamicIcons /> */}
-              <DynamicIcons icon={tech} />
-              <span className="text-sm font-medium">{tech}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap gap-4">
-          <>
-            {project?.githubLink && (
-              <a
-                href={project?.githubLink}
-                target="_blank"
-                className="flex items-center"
+          <div title="Used tech stacks" className="flex flex-wrap gap-4 mb-4">
+            {project?.techStack?.map((tech, index) => (
+              <div
+                key={index}
+                className="flex flex-col justify-center items-center bg-secondary rounded-full py-1 space-y-2"
               >
-                <Github className="w-4 h-4 mr-2" />
-                View Code
-              </a>
-            )}
-            {project?.liveLink && (
-              <a
-                target="_blank"
-                href={project?.liveLink}
-                className=" ring-1 ring-gray-300 px-2 py-1.5 rounded-md flex items-center"
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Live Demo
-              </a>
-            )}
-          </>
-          {/* Edit Button */}
+                {/* <DynamicIcons /> */}
+                <DynamicIcons icon={tech} />
+                <span className="text-sm font-medium">{tech}</span>
+              </div>
+            ))}
+          </div>
 
-          {project && userId && (
+          <div className="flex flex-wrap gap-4">
             <>
-              <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-                <DrawerTrigger asChild>
-                  <button
-                    // onClick={() => editProject(project.id)} // Function to handle edit
-                    className=" px-2 py-1.5 rounded-md flex items-center bg-blue-500 text-white"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />{" "}
-                    {/* You can use an icon for Edit */}
-                    Edit
-                  </button>
-                </DrawerTrigger>
-                <DrawerContent className="w-full h-[85vh] max-w-6xl mx-auto flex flex-col bg-gray-100">
-                  <DrawerHeader className="flex-shrink-0">
-                    <DrawerTitle className="text-red-600">
-                      Edit Project
-                    </DrawerTitle>
-                  </DrawerHeader>
-                  <ScrollArea className="flex-grow">
-                    <form
-                      onSubmit={handleUpdate}
-                      className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6"
+              {project?.githubLink && (
+                <a
+                  href={project?.githubLink}
+                  target="_blank"
+                  className="flex items-center"
+                >
+                  <Github className="w-4 h-4 mr-2" />
+                  View Code
+                </a>
+              )}
+              {project?.liveLink && (
+                <a
+                  target="_blank"
+                  href={project?.liveLink}
+                  className=" ring-1 ring-gray-300 px-2 py-1.5 rounded-md flex items-center"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Live Demo
+                </a>
+              )}
+            </>
+            {/* Edit Button */}
+
+            {project && userId && (
+              <>
+                <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+                  <DrawerTrigger asChild>
+                    <button
+                      // onClick={() => editProject(project.id)} // Function to handle edit
+                      className=" px-2 py-1.5 rounded-md flex items-center bg-blue-500 text-white"
                     >
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-project-name">Project Name</Label>
-                          <Input
-                            id="new-project-name"
-                            placeholder="Enter project name"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-project-subtitle">
-                            Project Subtitle
-                          </Label>
-                          <Input
-                            id="new-project-subtitle"
-                            placeholder="Enter project subtitle"
-                            value={shortDesc}
-                            onChange={(e) => setShortDesc(e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-project-description">
-                            Project Description
-                          </Label>
-                          <Textarea
-                            className="border-gray-300"
-                            id="new-project-description"
-                            placeholder="Enter project description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="new-project-features">
-                            Key Features
-                          </Label>
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {keyFeatures.map((feature) => (
-                              <div
-                                key={feature}
-                                className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full flex items-center"
-                              >
-                                <span>{feature}</span>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleRemoveFeature(feature)}
-                                  className="ml-1 p-0 h-auto"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="flex gap-2">
+                      <Edit className="w-4 h-4 mr-2" />{" "}
+                      {/* You can use an icon for Edit */}
+                      Edit
+                    </button>
+                  </DrawerTrigger>
+                  <DrawerContent className="w-full h-[85vh] max-w-6xl mx-auto flex flex-col bg-gray-100">
+                    <DrawerHeader className="flex-shrink-0">
+                      <DrawerTitle className="text-red-600">
+                        Edit Project
+                      </DrawerTitle>
+                    </DrawerHeader>
+                    <ScrollArea className="flex-grow">
+                      <form
+                        onSubmit={handleUpdate}
+                        className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6"
+                      >
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="new-project-name">
+                              Project Name
+                            </Label>
                             <Input
-                              id="new-project-features"
-                              placeholder="Add key feature"
-                              value={newFeature}
-                              onChange={(e) => setNewFeature(e.target.value)}
-                              onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  handleAddFeature();
-                                }
-                              }}
+                              id="new-project-name"
+                              placeholder="Enter project name"
+                              value={title}
+                              onChange={(e) => setTitle(e.target.value)}
                             />
-                            <Button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleAddFeature();
-                              }}
-                            >
-                              Add
-                            </Button>
                           </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-project-techstack">
-                            Tech Stack
-                          </Label>
-                          <div className="flex flex-wrap gap-2 mb-2">
-                            {techStack.map((tech) => (
-                              <div
-                                key={tech}
-                                className="px-2 py-1 flex items-center"
-                              >
-                                {/* <div key={tech} className="bg-red-100 text-red-600 px-2 py-1 rounded-full flex items-center"> */}
-                                <DynamicIcons icon={tech} />
-                                <span className="ml-1">{tech}</span>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleRemoveTechItem(tech)}
-                                  className="ml-1 p-0 h-auto"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="flex gap-2">
+                          <div className="space-y-2">
+                            <Label htmlFor="new-project-subtitle">
+                              Project Subtitle
+                            </Label>
                             <Input
-                              id="new-project-techstack"
-                              placeholder="Add tech stack item"
-                              value={newTechItem}
-                              onChange={(e) => setNewTechItem(e.target.value)}
-                              onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  handleAddTechItem();
-                                }
-                              }}
+                              id="new-project-subtitle"
+                              placeholder="Enter project subtitle"
+                              value={shortDesc}
+                              onChange={(e) => setShortDesc(e.target.value)}
                             />
-                            <Button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleAddTechItem();
-                              }}
-                            >
-                              Add
-                            </Button>
                           </div>
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="new-project-github">
-                            GitHub Link
-                          </Label>
-                          <Input
-                            id="new-project-github"
-                            placeholder="Enter GitHub link"
-                            value={githubLink}
-                            onChange={(e) => setGithubLink(e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="new-project-live">Live Link</Label>
-                          <Input
-                            id="new-project-live"
-                            placeholder="Enter live link"
-                            value={liveLink}
-                            onChange={(e) => setLiveLink(e.target.value)}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="new-project-images">
-                            Project Images
-                          </Label>
-                          <div className="w-auto h-auto flex flex-col justify-center items-center">
-                            <MultiImageDropzone
-                              value={fileStates}
-                              onChange={handleFilesChange}
-                              dropzoneOptions={{
-                                maxFiles: 10 - uploadedImageUrls.length,
-                              }}
+                          <div className="space-y-2">
+                            <Label htmlFor="new-project-description">
+                              Project Description
+                            </Label>
+                            <Textarea
+                              className="border-gray-300"
+                              id="new-project-description"
+                              placeholder="Enter project description"
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
                             />
-                            {/* <div className="w-auto h-auto gap-1 flex justify-center flex-wrap"> */}
-                            <div className="grid h-auto gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                              {uploadedImageUrls?.map((url, index) => (
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="new-project-features">
+                              Key Features
+                            </Label>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {keyFeatures.map((feature) => (
                                 <div
-                                  key={index}
-                                  className="border-0 p-0 w-full h-full relative shadow-md bg-slate-200 dark:bg-slate-900 rounded-md aspect-video"
+                                  key={feature}
+                                  className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full flex items-center"
                                 >
-                                  <Image
-                                    className="h-full w-full rounded-sm object-contain"
-                                    src={url}
-                                    alt={`Uploaded image ${index + 1}`}
-                                  />
-
-                                  {/* Remove Image Icon */}
-                                  {url && (
-                                    <div
-                                      className="group absolute right-0 top-0 -translate-y-1/4 translate-x-1/4 transform"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        const newValue =
-                                          uploadedImageUrls.filter(
-                                            (_, i) => i !== index
-                                          );
-                                        setUploadedImageUrls(newValue);
-                                      }}
-                                    >
-                                      <div className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border border-solid border-gray-500 bg-white transition-all duration-300 hover:h-6 hover:w-6 dark:border-gray-400 dark:bg-black">
-                                        <X
-                                          className="text-gray-500 dark:text-gray-400"
-                                          width={16}
-                                          height={16}
-                                        />
-                                      </div>
-                                    </div>
-                                  )}
+                                  <span>{feature}</span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveFeature(feature)}
+                                    className="ml-1 p-0 h-auto"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
                                 </div>
                               ))}
                             </div>
+                            <div className="flex gap-2">
+                              <Input
+                                id="new-project-features"
+                                placeholder="Add key feature"
+                                value={newFeature}
+                                onChange={(e) => setNewFeature(e.target.value)}
+                                onKeyPress={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    handleAddFeature();
+                                  }
+                                }}
+                              />
+                              <Button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleAddFeature();
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="new-project-techstack">
+                              Tech Stack
+                            </Label>
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {techStack.map((tech) => (
+                                <div
+                                  key={tech}
+                                  className="px-2 py-1 flex items-center"
+                                >
+                                  {/* <div key={tech} className="bg-red-100 text-red-600 px-2 py-1 rounded-full flex items-center"> */}
+                                  <DynamicIcons icon={tech} />
+                                  <span className="ml-1">{tech}</span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleRemoveTechItem(tech)}
+                                    className="ml-1 p-0 h-auto"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex gap-2">
+                              <Input
+                                id="new-project-techstack"
+                                placeholder="Add tech stack item"
+                                value={newTechItem}
+                                onChange={(e) => setNewTechItem(e.target.value)}
+                                onKeyPress={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    handleAddTechItem();
+                                  }
+                                }}
+                              />
+                              <Button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleAddTechItem();
+                                }}
+                              >
+                                Add
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </form>
-                  </ScrollArea>
-                  <DrawerFooter className="flex-shrink-0">
-                    <Button
-                      // type="submit"
-                      onClick={() => {
-                        handleUpdate();
-                      }}
-                      disabled={mutation.isPending}
-                      className="w-full bg-red-600 text-white hover:bg-red-700"
-                    >
-                      {mutation.isPending && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Save Project
-                    </Button>
-                  </DrawerFooter>
-                </DrawerContent>
-              </Drawer>
-              <CustomAlertDialog
-                title="Are you sure?"
-                description="This can't be undo."
-                cancelText="No"
-                confirmText="Yes, Delete"
-                buttonText="Delete Project"
-                buttonIcon={<Trash size={16} />}
-                project={project}
-                useDeleteProjectMutation={useDeleteProjectMutation}
-              />
-            </>
-          )}
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="new-project-github">
+                              GitHub Link
+                            </Label>
+                            <Input
+                              id="new-project-github"
+                              placeholder="Enter GitHub link"
+                              value={githubLink}
+                              onChange={(e) => setGithubLink(e.target.value)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="new-project-live">Live Link</Label>
+                            <Input
+                              id="new-project-live"
+                              placeholder="Enter live link"
+                              value={liveLink}
+                              onChange={(e) => setLiveLink(e.target.value)}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="new-project-images">
+                              Project Images
+                            </Label>
+                            <div className="w-auto h-auto flex flex-col justify-center items-center">
+                              <MultiImageDropzone
+                                value={fileStates}
+                                onChange={handleFilesChange}
+                                dropzoneOptions={{
+                                  maxFiles: 10 - uploadedImageUrls.length,
+                                }}
+                              />
+                              {/* <div className="w-auto h-auto gap-1 flex justify-center flex-wrap"> */}
+                              <div className="grid h-auto gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {uploadedImageUrls?.map((url, index) => (
+                                  <div
+                                    key={index}
+                                    className="border-0 p-0 w-full h-full relative shadow-md bg-slate-200 dark:bg-slate-900 rounded-md aspect-video"
+                                  >
+                                    <Image
+                                      className="h-full w-full rounded-sm object-contain"
+                                      src={url}
+                                      alt={`Uploaded image ${index + 1}`}
+                                    />
+
+                                    {/* Remove Image Icon */}
+                                    {url && (
+                                      <div
+                                        className="group absolute right-0 top-0 -translate-y-1/4 translate-x-1/4 transform"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          const newValue =
+                                            uploadedImageUrls.filter(
+                                              (_, i) => i !== index
+                                            );
+                                          setUploadedImageUrls(newValue);
+                                        }}
+                                      >
+                                        <div className="flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border border-solid border-gray-500 bg-white transition-all duration-300 hover:h-6 hover:w-6 dark:border-gray-400 dark:bg-black">
+                                          <X
+                                            className="text-gray-500 dark:text-gray-400"
+                                            width={16}
+                                            height={16}
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </ScrollArea>
+                    <DrawerFooter className="flex-shrink-0">
+                      <Button
+                        // type="submit"
+                        onClick={() => {
+                          handleUpdate();
+                        }}
+                        disabled={mutation.isPending}
+                        className="w-full bg-red-600 text-white hover:bg-red-700"
+                      >
+                        {mutation.isPending && (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Save Project
+                      </Button>
+                    </DrawerFooter>
+                  </DrawerContent>
+                </Drawer>
+                <CustomAlertDialog
+                  title="Are you sure?"
+                  description="This can't be undo."
+                  cancelText="No"
+                  confirmText="Yes, Delete"
+                  buttonText="Delete Project"
+                  buttonIcon={<Trash size={16} />}
+                  project={project}
+                  useDeleteProjectMutation={useDeleteProjectMutation}
+                />
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <Card className="border-0 shadow-none ml-4">
-          <CardHeader>
-            <CardTitle>Key Features</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {project?.keyFeatures?.map((feature, index) => (
-                <li key={index} className="flex items-start">
-                  <ChevronRight className="w-4 h-4 mr-2 text-primary flex-shrink-0 mt-1" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <Card className="border-0 shadow-none ml-4">
+            <CardHeader>
+              <CardTitle>Key Features</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {project?.keyFeatures?.map((feature, index) => (
+                  <li key={index} className="flex items-start">
+                    <ChevronRight className="w-4 h-4 mr-2 text-primary flex-shrink-0 mt-1" />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
 
-        <div className="w-full h-80 aspect-video relative overflow- rounded-lg">
-          {/* <Image
+          <div className="w-full h-80 aspect-video relative overflow- rounded-lg">
+            {/* <Image
           src={project?.images[0].src}
           alt="Main project image"
           fill
           priority
           className="object-cover"
         /> */}
-          <Carousel
-            plugins={[plugin.current]}
-            className=" w-full h-80"
-            onMouseEnter={plugin.current.stop}
-            onMouseLeave={plugin.current.reset}
-          >
-            <CarouselContent>
-              {project?.images?.map((image, index) => (
-                <CarouselItem key={index}>
-                  <div className="p-1 ">
-                    <Card className=" border-3 border-red-500">
-                      <CardContent className="flex aspect-video object-contain items-center justify-center p-2">
-                        <Image
-                          src={image}
-                          alt={project.title}
-                          width={800} // Adjust as per your desired width
-                          height={450} // Adjust as per your desired height or aspect ratio
-                          className=" object-contain w-auto h-full"
-                          priority
-                        />
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
+            <Carousel
+              plugins={[plugin.current]}
+              className=" w-full h-80"
+              onMouseEnter={plugin.current.stop}
+              onMouseLeave={plugin.current.reset}
+            >
+              <CarouselContent>
+                {project?.images?.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <div className="p-1 ">
+                      <Card className=" border-3 border-red-500">
+                        <CardContent className="flex aspect-video object-contain items-center justify-center p-2">
+                          <Image
+                            src={image}
+                            alt={project.title}
+                            width={800} // Adjust as per your desired width
+                            height={450} // Adjust as per your desired height or aspect ratio
+                            className=" object-contain w-auto h-full"
+                            priority
+                          />
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {project?.images?.map((image, index) => (
-          <motion.div
-            key={index}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setSelectedImage(image)}
-            className="relative aspect-video overflow-hidden rounded-lg cursor-pointer"
-          >
-            <Image
-              src={image}
-              alt={`Project image ${index + 2}`}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
-            />
-          </motion.div>
-        ))}
-      </div>
-
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-            onClick={() => setSelectedImage(null)}
-          >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {project?.images?.map((image, index) => (
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              className="relative max-w-6xl max-h-full"
+              key={index}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setSelectedImage(image)}
+              className="relative aspect-video overflow-hidden rounded-lg cursor-pointer"
             >
               <Image
-                src={selectedImage}
-                placeholder="empty" // "empty" | "blur" | "data:image/..."
-                // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                alt="Selected project image"
-                height="1000"
-                width="1000"
-                className=" object-cover rounded-lg w-full"
+                src={image}
+                alt={`Project image ${index + 2}`}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover"
               />
-              <Button
-                variant="secondary"
-                className="absolute  top-4 right-4"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log("🚀 ~ ProjectDetails ~ e:", e);
-                  setSelectedImage(null);
-                }}
-              >
-                <Minimize2 className="w-4 h-4 mr-2" />
-              </Button>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          ))}
+        </div>
+
+        <AnimatePresence>
+          {selectedImage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+              onClick={() => setSelectedImage(null)}
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                className="relative max-w-6xl max-h-full"
+              >
+                <Image
+                  src={selectedImage}
+                  placeholder="empty" // "empty" | "blur" | "data:image/..."
+                  // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  alt="Selected project image"
+                  height="1000"
+                  width="1000"
+                  className=" object-cover rounded-lg w-full"
+                />
+                <Button
+                  variant="secondary"
+                  className="absolute  top-4 right-4"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log("🚀 ~ ProjectDetails ~ e:", e);
+                    setSelectedImage(null);
+                  }}
+                >
+                  <Minimize2 className="w-4 h-4 mr-2" />
+                </Button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   );
 };

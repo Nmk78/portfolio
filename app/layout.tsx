@@ -25,6 +25,10 @@ const baseUrl = process.env.url || "http://localhost:3000";
 export const metadata: Metadata = {
   title: "Nay Myo Khant",
   description: "Passionate computer studied student",
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
