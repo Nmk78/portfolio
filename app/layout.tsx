@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   generator: "Next.js",
   applicationName: "Nay Myo Khant",
   referrer: "origin-when-cross-origin",
-  metadataBase: new URL("https://naymyokhant.vercel.app"),
+  metadataBase: new URL("https://naymyokhant.online"),
   category: "portfolio",
   authors: [{ name: "Nay Myo Khant" }],
     creator: "Nay Myo Khant",
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     siteName: "Nay Myo Khant",
     images: [
       {
-        url: `${baseUrl}/images/cover.webp`, // Replace with your image URL
+        url: `${baseUrl}/images/cover.webp`,
         width: 800,
         height: 600,
         alt: "Nay Myo Khant - Web Developer",
@@ -91,6 +91,26 @@ export default function RootLayout({
   return (
     <ClerkProvider afterSignOutUrl="/">
       <html lang="en">
+      <head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Person",
+                name: "Nay Myo Khant",
+                url: "https://www.naymyokhant.online",
+                sameAs: [
+                  "https://github.com/Nmk78",
+                  "https://www.linkedin.com/in/naymyokhant/",
+                ],
+                jobTitle: "Web Developer",
+                description:
+                  "Portfolio of Nay Myo Khant, a computer science student and web developer.",
+              }),
+            }}
+          />
+        </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
