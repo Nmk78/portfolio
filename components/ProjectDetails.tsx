@@ -415,7 +415,7 @@ export const ProjectDetails: React.FC<ProjectDetailsProps> = ({
             "@type": "CreativeWork",
             name: project.title,
             description: project.shortDesc,
-            url: `${baseUrl}/project/${project.id}`,
+            url: `${baseUrl}/project/${project.slug}`,
             keywords: project.techStack.join(", "),
             image: project.images.length
               ? [`${baseUrl}${project.images[0]}`]

@@ -10,7 +10,7 @@ interface ProjectCardProps {
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
-    <Link href={`project/${project.id}`}>
+    <Link href={`project/${project.slug}`}>
       <Card
         key={project.id}
         className="bg-gray-50 overflow-hidden group hover:scale-95 transition-transform duration-500"

@@ -109,7 +109,7 @@ export default function ProjectShowcase({
               onMouseLeave={() => setHoveredId(null)}
             >
               <CardContent className="p-0 relative">
-                <Link href={`/project/${project.id}`}>
+                <Link href={`/project/${project.slug}`}>
                   <div className="relative w-full h-64 overflow-hidden">
                     {project?.images?.length > 0 ? (
                       <Image

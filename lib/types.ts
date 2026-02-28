@@ -1,5 +1,6 @@
 export interface Project {
   id: string;
+  slug: string;
   title: string;
   shortDesc: string;
   description: string;
@@ -42,6 +43,6 @@ export interface Context {
 
 export interface PageProps {
   params: {
-    id: string;
+    slug: string;
   };
 }

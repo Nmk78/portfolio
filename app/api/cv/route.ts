@@ -1,29 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Assuming Prisma client is set up in the lib folder
-import { cvSchema } from '@/lib/validations'; // Zod schema for validating the CV data
+import { prisma } from '@/lib/prisma';
+import { cvSchema } from '@/lib/validations';
 import { ZodError } from 'zod';
 import { getAuth } from '@clerk/nextjs/server';
+import { successEnvelope, errorEnvelope } from '@/lib/envelope';
 
-// GET: Fetch CV information
 export async function GET() {
   try {
-    const cv = await prisma.cv.findFirst(); // Fetch the CV entry
+    const cv = await prisma.cv.findFirst();
 
-    const responseEnvelope = {
-      status: 'success',
-      message: 'CV information retrieved successfully',
-      data: cv,
-    };
-
-    return NextResponse.json(responseEnvelope);
+    return NextResponse.json(
+      successEnvelope("CV information retrieved successfully", cv)
+    );
   } catch (error) {
-    const errorResponseEnvelope = {
-      status: 'error',
-      error: (error as Error).message || 'Unknown error occurred', // Type assertion to Error
-      message: 'Failed to fetch CV information',
-      data: null,
-    };
-    return NextResponse.json(errorResponseEnvelope, { status: 500 });
+    console.error("Error fetching CV:", error);
+    return NextResponse.json(
+      errorEnvelope("Failed to fetch CV information"),
+      { status: 500 }
+    );
   }
 }
 
@@ -32,61 +26,45 @@ export async function POST(request: NextRequest) {
     const { userId } = getAuth(request);
 
     if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(errorEnvelope("Unauthorized"), { status: 401 });
     }
     
     const body = await request.json();
-    const validatedData = cvSchema.parse(body); // Validate the incoming data
+    const validatedData = cvSchema.parse(body);
 
-    // Check for an existing CV entry
     const existingCvEntry = await prisma.cv.findFirst();
 
     if (existingCvEntry) {
-      // Update the existing entry instead of creating a duplicate
       const updatedCv = await prisma.cv.update({
-        where: { id: existingCvEntry.id }, // Use the actual ObjectID here
+        where: { id: existingCvEntry.id },
         data: validatedData,
       });
 
-      const responseEnvelope = {
-        status: 'success',
-        message: 'CV information updated successfully',
-        data: updatedCv,
-      };
-
-      return NextResponse.json(responseEnvelope);
+      return NextResponse.json(
+        successEnvelope("CV information updated successfully", updatedCv)
+      );
     } else {
-      // Create a new entry if none exists
       const newCv = await prisma.cv.create({
         data: validatedData,
       });
 
-      const responseEnvelope = {
-        status: 'success',
-        message: 'CV information created successfully',
-        data: newCv,
-      };
-
-      return NextResponse.json(responseEnvelope, { status: 201 }); // 201 Created
+      return NextResponse.json(
+        successEnvelope("CV information created successfully", newCv),
+        { status: 201 }
+      );
     }
   } catch (error: unknown) {
     if (error instanceof ZodError) {
-      const errorResponseEnvelope = {
-        status: 'error',
-        error: error.errors, // Zod validation errors
-        message: 'Validation error occurred',
-        data: null,
-      };
-      return NextResponse.json(errorResponseEnvelope, { status: 400 });
+      return NextResponse.json(
+        errorEnvelope("Validation error occurred", JSON.stringify(error.errors)),
+        { status: 400 }
+      );
     }
 
-    const errorResponseEnvelope = {
-      status: 'error',
-      error: (error as Error).message || 'Unknown error occurred', // Type assertion to Error
-      message: 'Failed to create or update CV information',
-      data: null,
-    };
-
-    return NextResponse.json(errorResponseEnvelope, { status: 500 });
+    console.error("Error creating/updating CV:", error);
+    return NextResponse.json(
+      errorEnvelope("Failed to create or update CV information"),
+      { status: 500 }
+    );
   }
 }

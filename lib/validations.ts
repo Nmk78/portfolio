@@ -34,6 +34,6 @@ export const cvSchema = z.object({
   url: z.string().url("Invalid URL"),
 });
 
-export const chatcontext = z.object({
-  context: z.string().min(1, "Context data is required"),
+export const chatContextSchema = z.object({
+  content: z.string().min(1, "Context content is required"),
 });

@@ -247,7 +247,7 @@ export const ProjectCard = ({ project, translate }: ProjectCardProps) => {
       className="group/product h-96 w-[30rem] relative flex-shrink-0"
     >
       <Link
-        href={`project/${project.id}`}
+        href={`project/${project.slug}`}
         className="block group-hover/product:shadow-2xl"
       >
         <div className="relative h-96 w-full">

@@ -1,13 +1,12 @@
 import { ProjectDetails } from "@/components/ProjectDetails";
 import { PageProps } from "@/lib/types";
-// import { redirect } from "next/navigation";
 import React from "react";
-const baseUrl = process.env.url || "http://localhost:3000";
 
-// Function to fetch project data by ID
-const getProject = async (id: string) => {
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+const getProject = async (slug: string) => {
   try {
-    const response = await fetch(`${baseUrl}/api/projects?id=${id}`);
+    const response = await fetch(`${baseUrl}/api/projects?slug=${slug}`);
     const data = await response.json();
     return data.data;
   } catch (error) {
@@ -16,10 +15,8 @@ const getProject = async (id: string) => {
   }
 };
 
-// Function to generate metadata dynamically
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const project = await getProject(params.id);
-  const baseUrl = process.env.url || "http://localhost:3000";
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const project = await getProject(params.slug);
 
   if (!project) {
     return {
@@ -31,16 +28,16 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   const titleKeywords = project.title.split(" ");
 
   const keywords = [
-    ...project.techStack, // Technologies
-    ...titleKeywords, // Title words
-    ...project.keyFeatures, // Key features
+    ...project.techStack,
+    ...titleKeywords,
+    ...project.keyFeatures,
   ].join(", ");
 
   return {
     title: `${project.title} | Nay Myo Khant`,
     description: project.shortDesc,
     alternates: {
-      canonical: `${baseUrl}/project/${project.id}`,
+      canonical: `${baseUrl}/project/${project.slug}`,
     },
     robots: {
       index: true,
@@ -53,7 +50,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
       locale: "en_US",
       type: "website",
       images: project.images.length ? [{ url: project.images[0] }] : [],
-      url: `${baseUrl}/project/${project.id}`,
+      url: `${baseUrl}/project/${project.slug}`,
     },
     twitter: {
       card: "summary_large_image",
@@ -65,14 +62,12 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-// Main Page component (make it async)
 const Page = async ({ params }: PageProps) => {
-  if (!params?.id) {
-    throw new Error("Project ID is required");
+  if (!params?.slug) {
+    throw new Error("Project slug is required");
   }
 
-  // Fetch the project using the helper function
-  const project = await getProject(params.id);
+  const project = await getProject(params.slug);
 
   return <ProjectDetails passedProject={project} />;
 };

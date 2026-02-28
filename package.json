@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "backfill-slugs": "tsx scripts/backfill-project-slugs.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.17",
@@ -60,6 +61,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "tsx": "^4.19.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18.3.12",

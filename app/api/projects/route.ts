@@ -3,124 +3,93 @@ import { prisma } from "@/lib/prisma";
 import { ZodError } from "zod";
 import { projectSchema } from "@/lib/validations";
 import { getAuth } from "@clerk/nextjs/server";
+import { isValidObjectId, generateUniqueSlug } from "@/lib/validation";
+import { successEnvelope, errorEnvelope } from "@/lib/envelope";
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id");
-
   try {
-    const projects = id
-      ? await prisma.project.findUnique({ where: { id } }) // Fetch by ID if provided
-      : await prisma.project.findMany(); // Otherwise fetch all projects
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    const slug = searchParams.get("slug");
 
-    const responseEnvelope = {
-      status: "success",
-      message: "Projects retrieved successfully",
-      data: projects,
-    };
+    if (id && !isValidObjectId(id)) {
+      return NextResponse.json(
+        errorEnvelope("Invalid project ID format"),
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json(responseEnvelope);
+    let projects;
+    if (slug) {
+      projects = await prisma.project.findUnique({ where: { slug } });
+    } else if (id) {
+      projects = await prisma.project.findUnique({ where: { id } });
+    } else {
+      projects = await prisma.project.findMany();
+    }
+
+    return NextResponse.json(
+      successEnvelope("Projects retrieved successfully", projects)
+    );
   } catch (error) {
-    const errorResponseEnvelope = {
-      status: "error",
-      error: error, // Debugging information
-      message: "Failed to fetch projects",
-      data: null,
-    };
-    return NextResponse.json(errorResponseEnvelope, { status: 500 });
+    console.error("Error fetching projects:", error);
+    return NextResponse.json(
+      errorEnvelope("Failed to fetch projects"),
+      { status: 500 }
+    );
   }
 }
-// export async function POST(request: Request) {
-//   try {
-//     const body = await request.json();
-//     const validatedData = projectSchema.parse(body);
-
-//     const newProject = await prisma.project.create({
-//       data: validatedData,
-//     });
-
-//     const responseEnvelope = {
-//       status: 'success',
-//       message: 'Project created successfully',
-//       data: newProject,
-//     };
-//     return NextResponse.json(responseEnvelope, { status: 201 });
-//   } catch (error: unknown) {
-//     if (error instanceof ZodError) {
-//       const errorResponseEnvelope = {
-//         status: 'error',
-//         error: error.errors,
-//         message: 'Validation error occurred',
-//         data: null,
-//       };
-//       return NextResponse.json(errorResponseEnvelope, { status: 400 });
-//     }
-
-//     const errorResponseEnvelope = {
-//       status: 'error',
-//       error: error,
-//       message: 'Failed to create project',
-//       data: null,
-//     };
-//     return NextResponse.json(errorResponseEnvelope, { status: 500 });
-//   }
-// }
-
-// PUT Handler
 
 export async function POST(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
 
     if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(errorEnvelope("Unauthorized"), { status: 401 });
     }
 
     const body = await request.json();
-    console.log("🚀 ~ POST ~ body:", body);
-
-    // Assuming you have a Zod schema for validation
     const validatedData = projectSchema.parse(body);
+
+    const existingSlugs = await prisma.project.findMany({
+      select: { slug: true },
+    });
+    const slug = generateUniqueSlug(
+      validatedData.title,
+      existingSlugs.map((p) => p.slug)
+    );
 
     const newProject = await prisma.project.create({
       data: {
+        slug,
         title: validatedData.title,
         shortDesc: validatedData.shortDesc,
         description: validatedData.description,
-        githubLink: validatedData.githubLink ?? "",
-        liveLink: validatedData.liveLink ?? "",
+        githubLink: validatedData.githubLink || null,
+        liveLink: validatedData.liveLink || null,
         images: validatedData.images,
         techStack: validatedData.techStack,
         keyFeatures: validatedData.keyFeatures,
       },
     });
 
-    // const newProject = await prisma.project.create({data: validatedData});
-
-    const responseEnvelope = {
-      status: "success",
-      message: "Project created successfully",
-      data: newProject,
-    };
-    return NextResponse.json(responseEnvelope, { status: 201 });
+    return NextResponse.json(
+      successEnvelope("Project created successfully", newProject),
+      { status: 201 }
+    );
   } catch (error: unknown) {
     if (error instanceof ZodError) {
-      const errorResponseEnvelope = {
-        status: "error",
-        error: error.errors,
-        message: "Validation error occurred",
-        data: null,
-      };
-      return NextResponse.json(errorResponseEnvelope, { status: 400 });
+      return NextResponse.json(
+        errorEnvelope("Validation error occurred", JSON.stringify(error.errors)),
+        { status: 400 }
+      );
     }
 
-    const errorResponseEnvelope = {
-      status: "error",
-      error: error,
-      message: "Failed to create project",
-      data: null,
-    };
-    return NextResponse.json(errorResponseEnvelope, { status: 500 });
+    console.error("Error creating project:", error);
+    return NextResponse.json(
+      errorEnvelope("Failed to create project"),
+      { status: 500 }
+    );
   }
 }
 
@@ -129,7 +98,7 @@ export async function PUT(request: NextRequest) {
     const { userId } = getAuth(request);
 
     if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(errorEnvelope("Unauthorized"), { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
@@ -137,98 +106,114 @@ export async function PUT(request: NextRequest) {
 
     if (!id) {
       return NextResponse.json(
-        { status: "error", message: "Project ID is required", data: null },
+        errorEnvelope("Project ID is required"),
+        { status: 400 }
+      );
+    }
+
+    if (!isValidObjectId(id)) {
+      return NextResponse.json(
+        errorEnvelope("Invalid project ID format"),
         { status: 400 }
       );
     }
 
     const body = await request.json();
-    console.log("🚀 ~ PUT ~ body:", body);
     const validatedData = projectSchema.parse(body);
 
-    // Get the current project data from the database
     const currentProject = await prisma.project.findUnique({
       where: { id },
     });
 
     if (!currentProject) {
       return NextResponse.json(
-        { status: "error", message: "Project not found", data: null },
+        errorEnvelope("Project not found"),
         { status: 404 }
       );
     }
 
-    // Update the project in the database with the new image URLs and other data
+    let slug = currentProject.slug;
+    if (validatedData.title !== currentProject.title) {
+      const existingSlugs = await prisma.project.findMany({
+        select: { slug: true },
+        where: { NOT: { id } },
+      });
+      slug = generateUniqueSlug(
+        validatedData.title,
+        existingSlugs.map((p) => p.slug)
+      );
+    }
+
     const updatedProject = await prisma.project.update({
       where: { id },
       data: {
-        ...validatedData,
-        images: validatedData.images, // Replace the images array with the new one from the client
+        slug,
+        title: validatedData.title,
+        shortDesc: validatedData.shortDesc,
+        description: validatedData.description,
+        githubLink: validatedData.githubLink || null,
+        liveLink: validatedData.liveLink || null,
+        images: validatedData.images,
+        techStack: validatedData.techStack,
+        keyFeatures: validatedData.keyFeatures,
       },
     });
 
-    return NextResponse.json({
-      status: "success",
-      message: "Project updated successfully",
-      data: updatedProject,
-    });
+    return NextResponse.json(
+      successEnvelope("Project updated successfully", updatedProject)
+    );
   } catch (error: unknown) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        {
-          status: "error",
-          error: error.errors,
-          message: "Validation error occurred",
-          data: null,
-        },
+        errorEnvelope("Validation error occurred", JSON.stringify(error.errors)),
         { status: 400 }
       );
     }
 
+    console.error("Error updating project:", error);
     return NextResponse.json(
-      {
-        status: "error",
-        error: error,
-        message: "Failed to update project",
-        data: null,
-      },
+      errorEnvelope("Failed to update project"),
       { status: 500 }
     );
   }
 }
 
-// DELETE Handler
 export async function DELETE(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
 
     if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(errorEnvelope("Unauthorized"), { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+
     if (!id) {
       return NextResponse.json(
-        { status: "error", message: "Project ID is required", data: null },
+        errorEnvelope("Project ID is required"),
         { status: 400 }
       );
     }
-    
-    // Now delete the project from MongoDB
+
+    if (!isValidObjectId(id)) {
+      return NextResponse.json(
+        errorEnvelope("Invalid project ID format"),
+        { status: 400 }
+      );
+    }
+
     await prisma.project.delete({
       where: { id },
     });
 
-    return NextResponse.json({
-      status: "success",
-      message: "Project and associated images deleted successfully",
-      data: null,
-    });
+    return NextResponse.json(
+      successEnvelope("Project deleted successfully", null)
+    );
   } catch (error) {
     console.error("Error deleting project:", error);
     return NextResponse.json(
-      { status: "error", message: "Failed to delete project", error },
+      errorEnvelope("Failed to delete project"),
       { status: 500 }
     );
   }
