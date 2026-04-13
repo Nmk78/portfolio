@@ -7,7 +7,7 @@ import { DataProvider } from "@/context/DataContext";
 import { EdgeStoreProvider } from "@/lib/edgestore";
 import { ReactQueryProvider } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
-import { Analytics } from "@vercel/analytics/react"
+// import { Analytics } from "@vercel/analytics/react"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -90,7 +90,7 @@ export default function RootLayout({
                 <Nav />
                 {children}
                 <Toaster />
-                <Analytics />
+                {/* <Analytics /> */}
               </DataProvider>
             </ReactQueryProvider>
           </EdgeStoreProvider>
